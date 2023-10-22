@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="128"
+   height="128"
+   viewBox="0 0 33.866666 33.866666"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2">
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       id="filter1206"
+       x="-0.10230906"
+       y="-0.1488783"
+       width="1.2046181"
+       height="1.2977566">
+      <feGaussianBlur
+         stdDeviation="1 1"
+         result="blur"
+         id="feGaussianBlur1204" />
+    </filter>
+  </defs>
+  <g
+     id="layer1">
+    <rect
+       style="fill:#003bbf;stroke-width:0.264583;fill-opacity:1"
+       id="rect167"
+       width="28.574999"
+       height="28.574999"
+       x="2.6458333"
+       y="2.6458333"
+       rx="3.96875"
+       ry="3.96875" />
+    <text
+       xml:space="preserve"
+       style="font-size:22.5778px;fill:#000000;stroke-width:0.264583;filter:url(#filter1206)"
+       x="5.6317244"
+       y="25.522776"
+       id="text1170"><tspan
+         id="tspan1168"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:22.5778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#000000;stroke-width:0.264583"
+         x="5.6317244"
+         y="25.522776">ID</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:22.5778px;fill:#d46a46;stroke-width:0.264583;fill-opacity:1"
+       x="5.1025577"
+       y="24.993608"
+       id="text113"><tspan
+         id="tspan111"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:22.5778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#d46a46;stroke-width:0.264583;fill-opacity:1"
+         x="5.1025577"
+         y="24.993608">ID</tspan></text>
+  </g>
+</svg>

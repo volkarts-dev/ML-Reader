@@ -24,6 +24,8 @@ target_sources(mlreader PRIVATE
     LoaderPage.h
     LoaderPage.ui
     Main.cpp
+    Main.qrc
+    Main.rc
     MainWindow.cpp
     MainWindow.h
     MainWindow.ui
