@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "MessageView.h"
 #include <QMainWindow>
 
 class DataModel;
@@ -11,7 +12,7 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public MessageView
 {
     Q_OBJECT
 
@@ -22,7 +23,7 @@ public:
     explicit MainWindow(QWidget* parent = {});
     ~MainWindow() override;
 
-    void showStatusMessage(const QString& message, int timeout = 0);
+    void showStatusMessage(const QString& message, int timeout = 0) override;
 
 private slots:
     void onActionEndpointConfigEdit();

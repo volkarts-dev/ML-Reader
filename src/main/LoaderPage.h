@@ -8,7 +8,7 @@
 #include <QWidget>
 
 class DataModel;
-class MainWindow;
+class MessageView;
 class QDataWidgetMapper;
 
 namespace Ui {
@@ -23,7 +23,7 @@ public:
     explicit LoaderPage(QWidget* parent = {});
     ~LoaderPage() override;
 
-    void setMainWindow(MainWindow* mainWindow) { mainWindow_ = mainWindow; } // TODO us an interface
+    void setMessageView(MessageView* messageView) { messageView_ = messageView; }
 
 signals:
     void inputLoadingDone(bool result);
@@ -53,8 +53,8 @@ private:
     void mergePatientData(const MlClient::PatientData& patientData);
 
 private:
-    MainWindow* mainWindow_;
     Ui::LoaderPage* ui;
+    MessageView* messageView_{};
     DataModel* inputData_{};
     DataModel* outputData_{};
     QElapsedTimer executionTimer_;
