@@ -34,6 +34,5 @@ target_compile_features(project_config INTERFACE cxx_std_20)
 include(LoadQt5)
 include(LoadQtcsv)
 include(LoadQtKeychain)
-#include(LoadGlaze)
 
 add_subdirectory(src)
