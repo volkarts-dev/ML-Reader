@@ -18,6 +18,7 @@ private:
     HttpResponse(QNetworkReply* reply, QObject* parent = {});
 
 public:
+    QString networkErrorString() const { return reply_->errorString(); }
     const QByteArray& receiveBuffer() const { return receiveBuffer_; }
     const HttpBody& body() const { return body_; }
 

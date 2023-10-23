@@ -28,7 +28,8 @@ public:
     bool askRecoverableError(const QString& title, const QString& message) override;
 
 signals:
-    void patientDataLoaded(bool result, const MlClient::PatientData& data);
+    void patientDataLoadingFailed(const QString& error);
+    void patientDataLoaded(const MlClient::PatientData& data);
 
 private:
     HttpRequest createRequest(HttpRequest::Method method, const QString& path,

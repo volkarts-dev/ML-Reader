@@ -19,8 +19,14 @@ int main(int argc, char* argv[])
     QStringList pids{"ZPU3P1W3", "EL8F3DNC"};
     QStringList fields{"vorname", "nachname"};
 
+    QObject::connect(&client, &MlClient::patientDataLoadingFailed, &client,
+                     [] (const QString& error) {
+        qCInfo(MLC_LOG_CAT) << "ERROR:" << error;
+        QCoreApplication::quit();
+    });
+
     QObject::connect(&client, &MlClient::patientDataLoaded, &client,
-                     [] (bool result, const MlClient::PatientData& data) {
+                     [] (const MlClient::PatientData& data) {
         qCInfo(MLC_LOG_CAT) << data;
         QCoreApplication::quit();
     });

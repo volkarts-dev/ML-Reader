@@ -17,6 +17,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QSettings>
+#include <QMessageBox>
 
 LoaderPage::LoaderPage(QWidget* parent) :
     QWidget{parent},
@@ -181,26 +182,34 @@ void LoaderPage::onPidColumSelectorChanged(int index)
     updateUiState();
 }
 
-void LoaderPage::onPatientDataLoaded(bool result, const MlClient::PatientData& patientData)
+void LoaderPage::onPatientDataLoadingFailed(const QString& error)
+{
+    setEnabled(true);
+
+    mainWindow_->showStatusMessage(tr("Failed to load Patient data"), 2000);
+
+    QMessageBox::warning(
+                this,
+                tr("Error"),
+                tr("Error while loading patient data: %1").arg(error),
+                QMessageBox::Ok,
+                QMessageBox::Ok);
+
+    auto mlClient = qobject_cast<MlClient*>(sender());
+    Q_ASSERT(mlClient);
+    mlClient->deleteLater();
+}
+
+void LoaderPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
 {
     qCDebug(MLR_LOG_CAT) << "Loader Execution: Fetching took" << executionTimer_.elapsed() << "ms";
     executionTimer_.restart();
 
     setEnabled(true);
 
-    auto mlClient = qobject_cast<MlClient*>(sender());
-    Q_ASSERT(mlClient);
+    mergePatientData(patientData);
 
-    if (result)
-    {
-        mergePatientData(patientData);
-
-        mainWindow_->showStatusMessage(tr("Patient data loaded"), 1000);
-    }
-    else
-    {
-        mainWindow_->showStatusMessage(tr("Failed to load Patient data"), 2000);
-    }
+    mainWindow_->showStatusMessage(tr("Patient data loaded"), 1000);
 
     qCDebug(MLR_LOG_CAT) << "Loader Execution: Merging took" << executionTimer_.elapsed() << "ms";
     executionTimer_.restart();
@@ -208,6 +217,8 @@ void LoaderPage::onPatientDataLoaded(bool result, const MlClient::PatientData& p
 
     updateUiState();
 
+    auto mlClient = qobject_cast<MlClient*>(sender());
+    Q_ASSERT(mlClient);
     mlClient->deleteLater();
 }
 
@@ -248,6 +259,7 @@ void LoaderPage::onExecuteButtonClicked()
             QVersionNumber::fromString(apiVersion),
             ui->apiKey->text()};
 
+    connect(mlClient, &MlClient::patientDataLoadingFailed, this, &LoaderPage::onPatientDataLoadingFailed);
     connect(mlClient, &MlClient::patientDataLoaded, this, &LoaderPage::onPatientDataLoaded);
 
     qCDebug(MLR_LOG_CAT) << "Loader Execution: Setup took" << executionTimer_.elapsed() << "ms";

@@ -30,7 +30,7 @@ public:
     }
 
 signals:
-    void finishedError();
+    void finishedError(const QString& error);
 
 private:
     void createSession()
@@ -44,11 +44,14 @@ private:
         {
             if (error || statusCode != 201)
             {
+                const auto messageFromServer = errorMessage(response);
+
                 qCWarning(MLC_LOG_CAT)
                         .nospace().noquote() << "Failed to create session. " <<
                                                 "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
-                                                QString::fromUtf8(response->receiveBuffer()) << "\n<<<";
-                emit finishedError();
+                                                messageFromServer << "\n<<<";
+
+                emit finishedError(messageFromServer);
                 return;
             }
 
@@ -74,11 +77,14 @@ private:
         {
             if (error || statusCode != 201)
             {
+                const auto messageFromServer = errorMessage(response);
+
                 qCWarning(MLC_LOG_CAT)
                         .nospace().noquote() << "Failed to create token. " <<
                                                 "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
-                                                QString::fromUtf8(response->receiveBuffer()) << "\n<<<";
-                emit finishedError();
+                                                messageFromServer << "\n<<<";
+
+                emit finishedError(messageFromServer);
                 return;
             }
 
@@ -93,6 +99,14 @@ private:
     }
 
 protected:
+    inline QString errorMessage(const HttpResponse* response)
+    {
+        const auto& buffer = response->receiveBuffer();
+        if (buffer.trimmed().isEmpty())
+            return response->networkErrorString();
+        return QString::fromUtf8(buffer);
+    }
+
     inline HttpResponse* startRequest(HttpRequest::Method method, const QString& path,
                                       const QUrlQuery& query, const HttpBody& body = {}) const
     {
@@ -142,11 +156,14 @@ public:
         {
             if (error || statusCode != 200)
             {
+                const auto messageFromServer = errorMessage(response);
+
                 qCWarning(MLC_LOG_CAT)
                         .nospace().noquote() << "Failed to get patient data. " <<
                                                 "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
-                                                QString::fromUtf8(response->receiveBuffer()) << "\n<<<";
-                emit finishedError();
+                                                messageFromServer << "\n<<<";
+
+                emit finishedError(messageFromServer);
                 return;
             }
 
@@ -222,11 +239,11 @@ MlClient::MlClient(QString baseUrl, QVersionNumber apiVersion, QString apiKey, Q
 void MlClient::loadPatientData(const QStringList& pids, const QStringList& fields)
 {
     auto conversation = new LoadPatientDataConversation(apiVersion_, pids, fields, this, this);
-    connect(conversation, &LoadPatientDataConversation::finishedError, this, [this] () {
-        emit patientDataLoaded(false, {});
+    connect(conversation, &LoadPatientDataConversation::finishedError, this, [this] (const QString& error) {
+        emit patientDataLoadingFailed(error);
     });
     connect(conversation, &LoadPatientDataConversation::patientDataLoaded, this, [this] (const PatientData& data) {
-        emit patientDataLoaded(true, data);
+        emit patientDataLoaded(data);
     });
     conversation->start();
 }

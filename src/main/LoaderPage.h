@@ -40,7 +40,8 @@ private slots:
     void onPasswordLoaded(bool result, const QUuid& uuid, const QString& password);
     void onSaveApiKeyChanged(bool state);
     void onPidColumSelectorChanged(int index);
-    void onPatientDataLoaded(bool result, const MlClient::PatientData& patientData);
+    void onPatientDataLoadingFailed(const QString& error);
+    void onPatientDataLoaded(const MlClient::PatientData& patientData);
 
 private:
     void setup();
