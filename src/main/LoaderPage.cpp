@@ -10,7 +10,6 @@
 #include "DataModel.h"
 #include "EndpointConfigModel.h"
 #include "MainWindow.h"
-#include "PasswordStore.h"
 #include "Tools.h"
 #include <QDebug>
 #include <QDataWidgetMapper>
@@ -24,8 +23,7 @@ LoaderPage::LoaderPage(QWidget* parent) :
     mainWindow_{nullptr},
     ui{new Ui::LoaderPage{}},
     inputData_{new DataModel{this}},
-    outputData_{new DataModel{this}},
-    endpointConfigMapper_{new QDataWidgetMapper{this}}
+    outputData_{new DataModel{this}}
 {
     ui->setupUi(this);
     setup();
@@ -42,15 +40,6 @@ void LoaderPage::setup()
     ui->inputTable->setModel(inputData_);
     ui->outputTable->setModel(outputData_);
 
-    ui->endpointSelector->setModel(app()->endpointConfigModel());
-    ui->endpointSelector->setModelColumn(toInt(EndpointConfig::Field::Name));
-    ui->endpointSelector->setCurrentIndex(-1);
-
-    endpointConfigMapper_->setModel(app()->endpointConfigModel());
-    endpointConfigMapper_->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-    endpointConfigMapper_->addMapping(ui->baseURL, toInt(EndpointConfig::Field::BaseURL));
-    endpointConfigMapper_->addMapping(ui->fields, toInt(EndpointConfig::Field::Fields), "items");
-
     int lineHeight = ui->inputTable->fontMetrics().lineSpacing() + 5;
     ui->inputTable->verticalHeader()->setDefaultSectionSize(lineHeight); // ???
 
@@ -66,10 +55,7 @@ void LoaderPage::setup()
 
     connect(inputData_, &DataModel::modelReset, this, &LoaderPage::onInputDataChanged);
 
-    connect(ui->endpointSelector, qOverload<int>(&QComboBox::currentIndexChanged), this, &LoaderPage::onEnpointSelectorChanged);
-
-    connect(app()->passwordStore(), &PasswordStore::passwordLoaded, this, &LoaderPage::onPasswordLoaded);
-    connect(ui->saveApiKey, &QCheckBox::stateChanged, this, &LoaderPage::onSaveApiKeyChanged);
+    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &LoaderPage::onSelectedEnpointChanged);
 
     connect(ui->pidColumnSelector, qOverload<int>(&QComboBox::currentIndexChanged), this, &LoaderPage::onPidColumSelectorChanged);
 
@@ -82,8 +68,9 @@ void LoaderPage::loadWidgetState()
 {
     QSettings s;
 
-    ui->endpointSelector->setCurrentIndex(indexClamp(s.value("Window/LoaderPage/SelectedEndpoint").toInt(),
-                                                                  app()->endpointConfigModel()->rowCount() - 1));
+    ui->endpointSelector->setSelectedEndpoint(
+                indexClamp(s.value("Window/LoaderPage/SelectedEndpoint").toInt(),
+                           app()->endpointConfigModel()->rowCount() - 1));
     ui->splitter->restoreState(s.value("Window/LoaderPage/Splitter").toByteArray());
 }
 
@@ -91,7 +78,7 @@ void LoaderPage::saveWidgetState()
 {
     QSettings s;
 
-    s.setValue("Window/LoaderPage/SelectedEndpoint", ui->endpointSelector->currentIndex());
+    s.setValue("Window/LoaderPage/SelectedEndpoint", ui->endpointSelector->selectedEndpoint());
     s.setValue("Window/LoaderPage/Splitter", ui->splitter->saveState());
 }
 
@@ -149,32 +136,19 @@ void LoaderPage::onInputDataChanged()
     ui->pidColumnSelector->setCurrentIndex(inputData_->detectedPidColumn());
 }
 
-void LoaderPage::onEnpointSelectorChanged(int index)
+void LoaderPage::onSelectedEnpointChanged(int index)
 {
-    endpointConfigMapper_->setCurrentIndex(index);
-
     if (index == -1)
+    {
+        ui->fields->setItems({});
         return;
+    }
+
+    const auto model = app()->endpointConfigModel();
+    const auto modelIndex = model->index(index, toInt(EndpointConfig::Field::Fields));
+    ui->fields->setItems(model->data(modelIndex, Qt::DisplayRole).toStringList());
 
     ui->fields->selectAll();
-
-    app()->passwordStore()->loadPassword(currentEndpointUuid());
-}
-
-void LoaderPage::onPasswordLoaded(bool result, const QUuid& uuid, const QString& password)
-{
-    if (uuid != currentEndpointUuid())
-        return;
-
-    ui->apiKey->setText(password);
-}
-
-void LoaderPage::onSaveApiKeyChanged(bool state)
-{
-    if (!state)
-        app()->passwordStore()->removePassword(currentEndpointUuid());
-    else
-        ui->apiKey->setModified(true);
 }
 
 void LoaderPage::onPidColumSelectorChanged(int index)
@@ -224,12 +198,7 @@ void LoaderPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
 
 void LoaderPage::onExecuteButtonClicked()
 {
-    if (ui->apiKey->isModified())
-    {
-        if (ui->saveApiKey->isChecked())
-            app()->passwordStore()->savePassword(currentEndpointUuid(), ui->apiKey->text());
-        ui->apiKey->setModified(false);
-    }
+    ui->endpointSelector->saveApiKey();
 
     executionTimer_.start();
     qCDebug(MLR_LOG_CAT) << "Loader Execution: Started";
@@ -245,7 +214,7 @@ void LoaderPage::onExecuteButtonClicked()
     mainWindow_->showStatusMessage(tr("Loading patient data ..."));
 
     const auto model = app()->endpointConfigModel();
-    int currentEndpointIndex = ui->endpointSelector->currentIndex();
+    int currentEndpointIndex = ui->endpointSelector->selectedEndpoint();
 
     const auto baseUrl = model->data(
                 model->index(currentEndpointIndex, toInt(EndpointConfig::Field::BaseURL)),
@@ -257,7 +226,7 @@ void LoaderPage::onExecuteButtonClicked()
     auto mlClient = new MlClient{
             baseUrl,
             QVersionNumber::fromString(apiVersion),
-            ui->apiKey->text()};
+            ui->endpointSelector->currentApiKey()};
 
     connect(mlClient, &MlClient::patientDataLoadingFailed, this, &LoaderPage::onPatientDataLoadingFailed);
     connect(mlClient, &MlClient::patientDataLoaded, this, &LoaderPage::onPatientDataLoaded);
@@ -346,18 +315,6 @@ void LoaderPage::writeOutput(const QString &fileName)
 
         emit outputSavingDone(result);
     });
-}
-
-QUuid LoaderPage::currentEndpointUuid()
-{
-    auto index = ui->endpointSelector->currentIndex();
-    if (index == -1)
-        return {};
-
-    auto* model = app()->endpointConfigModel();
-    auto uuidData = model->data(model->index(index, toInt(EndpointConfig::Field::Uuid)),
-                            Qt::DisplayRole);
-    return uuidData.toUuid();
 }
 
 QStringList LoaderPage::makePidList()

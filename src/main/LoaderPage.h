@@ -36,9 +36,7 @@ private slots:
     void onInputLoadingDone(bool result);
     void onOutputSavingDone(bool result);
     void onInputDataChanged();
-    void onEnpointSelectorChanged(int index);
-    void onPasswordLoaded(bool result, const QUuid& uuid, const QString& password);
-    void onSaveApiKeyChanged(bool state);
+    void onSelectedEnpointChanged(int index);
     void onPidColumSelectorChanged(int index);
     void onPatientDataLoadingFailed(const QString& error);
     void onPatientDataLoaded(const MlClient::PatientData& patientData);
@@ -50,7 +48,6 @@ private:
     void updateUiState();
     void readInput(const QString& fileName);
     void writeOutput(const QString& fileName);
-    QUuid currentEndpointUuid();
     QStringList makePidList();
     QStringList makeFieldList();
     void mergePatientData(const MlClient::PatientData& patientData);
@@ -60,7 +57,6 @@ private:
     Ui::LoaderPage* ui;
     DataModel* inputData_{};
     DataModel* outputData_{};
-    QDataWidgetMapper* endpointConfigMapper_;
     QElapsedTimer executionTimer_;
 
     Q_DISABLE_COPY_MOVE(LoaderPage)
