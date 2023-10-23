@@ -1,6 +1,5 @@
-add_library(mlclient STATIC "")
-
-target_sources(mlclient PRIVATE
+add_library(
+    mlclient STATIC
     HttpBody.cpp
     HttpBody.h
     HttpClient.cpp
@@ -18,38 +17,21 @@ target_sources(mlclient PRIVATE
     Tools.h
 )
 
-configure_mocs(mlclient
-    MlClient.moc
-)
+configure_mocs(mlclient)
 
-target_link_libraries(mlclient PRIVATE
-    project_config
-)
-
-target_link_libraries(mlclient PUBLIC
-    Qt5::Core
-    Qt5::Network
-)
-
-target_include_directories(mlclient INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
-
-
-
-
-
-add_executable(mlclient_test "")
-
-target_sources(mlclient_test PRIVATE
-    TestMain.cpp
-)
-
-target_link_libraries(mlclient_test PRIVATE
-    project_config
-)
-
-target_link_libraries(mlclient_test PUBLIC
+target_link_libraries(
     mlclient
+    PRIVATE project_config
+    PUBLIC Qt5::Core Qt5::Network
 )
+
+target_include_directories(mlclient INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
+#
+# Test exe
+#
+add_executable(mlclient_test TestMain.cpp)
+
+target_link_libraries(mlclient_test PRIVATE project_config)
+
+target_link_libraries(mlclient_test PUBLIC mlclient)

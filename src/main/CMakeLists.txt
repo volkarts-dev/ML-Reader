@@ -1,6 +1,5 @@
-add_executable(mlreader "")
-
-target_sources(mlreader PRIVATE
+add_executable(
+    mlreader
     Application.cpp
     Application.h
     Configuration.cpp
@@ -11,6 +10,8 @@ target_sources(mlreader PRIVATE
     CsvReader.h
     DataModel.cpp
     DataModel.h
+    DynamicForm.cpp
+    DynamicForm.h
     EndpointConfig.cpp
     EndpointConfig.h
     EndpointConfigEditDlg.cpp
@@ -18,6 +19,9 @@ target_sources(mlreader PRIVATE
     EndpointConfigEditDlg.ui
     EndpointConfigModel.cpp
     EndpointConfigModel.h
+    EndpointSelector.cpp
+    EndpointSelector.h
+    EndpointSelector.ui
     ListWidgetInput.cpp
     ListWidgetInput.h
     LoaderPage.cpp
@@ -29,22 +33,24 @@ target_sources(mlreader PRIVATE
     MainWindow.cpp
     MainWindow.h
     MainWindow.ui
+    MessageView.h
     PasswordStore.cpp
     PasswordStore.h
+    QueryPage.cpp
+    QueryPage.h
+    QueryPage.ui
     Tools.cpp
     Tools.h
 )
 
 configure_mocs(mlreader)
 
-target_link_libraries(mlreader PRIVATE
-    project_config
-    mlclient
-    Qt5Keychain::Qt5Keychain
-    qtcsv::qtcsv
-    Qt5::Core
-    Qt5::Widgets
+target_link_libraries(
+    mlreader
+    PRIVATE project_config
+            mlclient
+            Qt5Keychain::Qt5Keychain
+            qtcsv::qtcsv
+            Qt5::Core
+            Qt5::Widgets
 )
-
-get_target_property(mlreader_src mlreader SOURCES)
-source_group("" FILES ${mlreader_src})
