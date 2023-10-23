@@ -15,7 +15,6 @@ class CsvReader : public QObject
 
 public:
     explicit CsvReader(QObject* parent = {});
-    ~CsvReader() override;
 
     bool read(QIODevice& input, DataModel* model);
     bool write(QIODevice& output, bool withHeader, DataModel* model);

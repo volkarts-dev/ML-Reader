@@ -3,13 +3,13 @@
 
 #include "HttpRequest.h"
 
-HttpRequest::HttpRequest(Method method, const QUrl& url) :
+HttpRequest::HttpRequest(Method method, QUrl url) :
     method_{method},
-    url_{url}
+        url_{std::move(url)}
 {
 }
 
-void HttpRequest::addHeader(QString name, QString value)
+void HttpRequest::addHeader(const QString& name, const QString& value)
 {
     headers_.insert(name, value);
 }

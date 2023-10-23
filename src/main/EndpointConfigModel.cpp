@@ -7,7 +7,6 @@
 
 EndpointConfigModel::EndpointConfigModel(QObject* parent) : QAbstractTableModel(parent)
 {
-
 }
 
 EndpointConfigModel::~EndpointConfigModel()

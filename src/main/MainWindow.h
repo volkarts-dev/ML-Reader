@@ -35,4 +35,6 @@ private:
 
 private:
     Ui::MainWindow* ui;
+
+    Q_DISABLE_COPY_MOVE(MainWindow)
 };

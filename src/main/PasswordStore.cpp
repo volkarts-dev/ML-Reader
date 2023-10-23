@@ -21,10 +21,6 @@ PasswordStore::PasswordStore(QObject *parent) :
 {
 }
 
-PasswordStore::~PasswordStore()
-{
-}
-
 bool PasswordStore::loadPassword(const QUuid& uuid)
 {
     auto* job = new QKeychain::ReadPasswordJob(SERVICE_NAME, this);

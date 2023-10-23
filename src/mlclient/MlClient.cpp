@@ -93,9 +93,6 @@ private:
     }
 
 protected:
-    //inline MlClient* mlClient() const { return mlClient_; }
-    //inline HttpClient* http() const { return mlClient_->http_; }
-    //inline HttpRequest createRequest() const { return mlClient_->createRequest()}
     inline HttpResponse* startRequest(HttpRequest::Method method, const QString& path,
                                       const QUrlQuery& query, const HttpBody& body = {}) const
     {
@@ -104,7 +101,6 @@ protected:
 
     const QString& sessionId() const { return sessionId_; }
     const QString& tokenId() const { return tokenId_; }
-    //void setSessionId(const QString& newSessionId) { sessionId_ = newSessionId; }
 
     virtual QJsonObject createTokenObject() = 0;
     virtual void doActualRequest() = 0;

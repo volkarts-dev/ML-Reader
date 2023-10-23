@@ -29,4 +29,6 @@ public:
 
 private:
     QList<EndpointConfig> configs_;
+
+    Q_DISABLE_COPY_MOVE(EndpointConfigModel)
 };

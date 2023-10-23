@@ -25,7 +25,7 @@ QJsonArray makePidList(const QStringList& pids)
 
 } // namespace
 
-QJsonObject makeReadPatientToken(const QVersionNumber& apiVersion, QStringList pids, QStringList fields)
+QJsonObject makeReadPatientToken(const QVersionNumber& apiVersion, const QStringList& pids, const QStringList& fields)
 {
     QJsonObject data;
     data["searchIds"_l1] = makePidList(pids);

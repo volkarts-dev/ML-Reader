@@ -8,4 +8,4 @@
 
 class QJsonObject;
 
-QJsonObject makeReadPatientToken(const QVersionNumber& apiVersion, QStringList pids, QStringList fields);
+QJsonObject makeReadPatientToken(const QVersionNumber& apiVersion, const QStringList& pids, const QStringList& fields);

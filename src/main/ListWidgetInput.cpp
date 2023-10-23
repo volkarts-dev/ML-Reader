@@ -8,6 +8,7 @@
 
 ListWidgetInput::ListWidgetInput(QWidget* parent) :
     QListWidget{parent},
+    editable_{false},
     actionAddItem_{new QAction{tr("New Item"), this}},
     shortcutAddItem_{new QShortcut{this}},
     actionRemoveItem_{new QAction{tr("Remove Item"), this}},

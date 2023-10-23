@@ -20,13 +20,13 @@ public:
     };
 
 public:
-    HttpRequest(Method method, const QUrl& url);
+    HttpRequest(Method method, QUrl url);
 
     Method method() const { return method_; }
     QUrl url() const { return url_; }
 
     QHash<QString, QString> headers() const { return headers_; }
-    void addHeader(QString name, QString value);
+    void addHeader(const QString& name, const QString& value);
 
     HttpBody body() const { return body_; }
     void setBody(const HttpBody& body);

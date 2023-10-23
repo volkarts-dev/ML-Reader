@@ -12,7 +12,6 @@ class PasswordStore : public QObject
 
 public:
     explicit PasswordStore(QObject* parent = {});
-    ~PasswordStore() override;
 
     bool loadPassword(const QUuid& uuid);
     bool savePassword(const QUuid& uuid, const QString& passwd);

@@ -25,7 +25,7 @@ public:
     PasswordStore* passwordStore() const { return passwordStore_.get(); }
     MainWindow* mainWindow() const { return mainWindow_.get(); }
 
-    void runJob(std::function<void()> runnable);
+    void runJob(const std::function<void()>& runnable);
 
 private:
     QScopedPointer<Configuration> configuration_;
@@ -33,6 +33,8 @@ private:
     QScopedPointer<PasswordStore> passwordStore_;
     QScopedPointer<MainWindow> mainWindow_;
     QAtomicInt runningJobs_{};
+
+    Q_DISABLE_COPY_MOVE(Application)
 };
 
 Application* app();

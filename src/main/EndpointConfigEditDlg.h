@@ -19,7 +19,7 @@ class EndpointConfigEditDlg : public QDialog
 
 public:
     explicit EndpointConfigEditDlg(QWidget* parent = nullptr);
-    ~EndpointConfigEditDlg();
+    ~EndpointConfigEditDlg() override;
 
 public slots:
     void accept() override;
@@ -35,4 +35,6 @@ private:
 private:
     Ui::EndpointConfigEditDlg* ui;
     QDataWidgetMapper* mapper_;
+
+    Q_DISABLE_COPY_MOVE(EndpointConfigEditDlg)
 };

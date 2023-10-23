@@ -57,7 +57,7 @@ bool Application::initialize()
     return true;
 }
 
-void Application::runJob(std::function<void()> runnable)
+void Application::runJob(const std::function<void()>& runnable)
 {
     ++runningJobs_;
     QThreadPool::globalInstance()->start([this, runnable]()

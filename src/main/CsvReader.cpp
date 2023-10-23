@@ -17,10 +17,6 @@ CsvReader::CsvReader(QObject* parent) :
 {
 }
 
-CsvReader::~CsvReader()
-{
-}
-
 bool CsvReader::read(QIODevice& input, DataModel* model)
 {
     auto cfg = app()->configuration();
