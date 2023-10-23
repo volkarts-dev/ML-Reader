@@ -99,6 +99,29 @@ private:
     }
 
 protected:
+    void deleteSession()
+    {
+        QString path = "/sessions/"_l1 + sessionId_;
+
+        auto response = startRequest(HttpRequest::Method::DELETE, path, {});
+
+        connect(response, &HttpResponse::finished, this,
+                [this, response](QNetworkReply::NetworkError error, int statusCode)
+        {
+            if (error || statusCode != 204)
+            {
+                const auto messageFromServer = errorMessage(response);
+
+                qCWarning(MLC_LOG_CAT)
+                        .nospace().noquote() << "Failed to delete session. " <<
+                                                "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
+                                                messageFromServer << "\n<<<";
+            }
+
+            response->deleteLater();
+        });
+    }
+
     inline QString errorMessage(const HttpResponse* response)
     {
         const auto& buffer = response->receiveBuffer();
@@ -174,6 +197,8 @@ public:
             emit patientDataLoaded(patientData);
 
             response->deleteLater();
+
+            deleteSession();
         });
     }
 
