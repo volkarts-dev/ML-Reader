@@ -44,8 +44,16 @@ bool MainWindow::setup()
     ui->queryPage->setMainInterface(this);
     ui->editorPage->setMainInterface(this);
 
+    ui->functionStack->setTabIcon(toInt(Page::Loader), QIcon::fromTheme("download"));
+    ui->functionStack->setTabIcon(toInt(Page::Query), QIcon::fromTheme("system-search"));
+    ui->functionStack->setTabIcon(toInt(Page::Editor), QIcon::fromTheme("document-edit"));
     ui->functionStack->setCurrentIndex(-1);
 
+    ui->actionEndpointConfigEdit->setIcon(QIcon::fromTheme("configure"));
+    ui->actionQuit->setIcon(QIcon::fromTheme("application-exit"));
+    ui->actionShowLoaderPage->setIcon(QIcon::fromTheme("download"));
+    ui->actionShowQueryPage->setIcon(QIcon::fromTheme("system-search"));
+    ui->actionShowEditorPage->setIcon(QIcon::fromTheme("document-edit"));
     loadMainWindowState();
 
     connect(ui->actionEndpointConfigEdit, &QAction::triggered, this, &MainWindow::onActionEndpointConfigEdit);
