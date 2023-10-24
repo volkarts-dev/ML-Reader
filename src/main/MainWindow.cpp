@@ -47,14 +47,12 @@ bool MainWindow::setup()
     ui->functionStack->setTabIcon(toInt(Page::Loader), QIcon::fromTheme("download"));
     ui->functionStack->setTabIcon(toInt(Page::Query), QIcon::fromTheme("system-search"));
     ui->functionStack->setTabIcon(toInt(Page::Editor), QIcon::fromTheme("document-edit"));
-    ui->functionStack->setCurrentIndex(-1);
 
     ui->actionEndpointConfigEdit->setIcon(QIcon::fromTheme("configure"));
     ui->actionQuit->setIcon(QIcon::fromTheme("application-exit"));
     ui->actionShowLoaderPage->setIcon(QIcon::fromTheme("download"));
     ui->actionShowQueryPage->setIcon(QIcon::fromTheme("system-search"));
     ui->actionShowEditorPage->setIcon(QIcon::fromTheme("document-edit"));
-    loadMainWindowState();
 
     connect(ui->actionEndpointConfigEdit, &QAction::triggered, this, &MainWindow::onActionEndpointConfigEdit);
     connect(ui->actionQuit, &QAction::triggered, this, &MainWindow::onActionQuitTriggerd);
@@ -64,6 +62,8 @@ bool MainWindow::setup()
     connect(ui->actionShowEditorPage, &QAction::triggered, this, &MainWindow::onShowEditPageTriggered);
 
     connect(ui->functionStack, &QTabWidget::currentChanged, this, &MainWindow::onFunctionStackCurrentChanged);
+
+    loadMainWindowState();
 
     return true;
 }
@@ -101,8 +101,10 @@ void MainWindow::loadMainWindowState()
 
     restoreGeometry(s.value("Window/Geometry").toByteArray());
     restoreState(s.value("Window/State").toByteArray());
-    ui->functionStack->setCurrentIndex(indexClamp(s.value("Window/FunctionPage").toInt(),
-                                                         ui->functionStack->count() - 1, 0));
+
+    int functionIndex = indexClamp(s.value("Window/FunctionPage").toInt(), ui->functionStack->count() - 1, 0);
+    ui->functionStack->setCurrentIndex(functionIndex);
+    onFunctionStackCurrentChanged(functionIndex);
 }
 
 void MainWindow::saveMainWindowState()
@@ -127,25 +129,25 @@ void MainWindow::onActionQuitTriggerd()
 
 void MainWindow::onShowLoaderPageTriggered()
 {
-    ui->functionStack->setCurrentIndex(0);
+    ui->functionStack->setCurrentIndex(toInt(Page::Loader));
     setWindowTitle(tr("Loader - ML Client"));
 }
 
 void MainWindow::onShowQueryPageTriggered()
 {
-    ui->functionStack->setCurrentIndex(1);
+    ui->functionStack->setCurrentIndex(toInt(Page::Query));
     setWindowTitle(tr("Query - ML Client"));
 }
 
 void MainWindow::onShowEditPageTriggered()
 {
-    ui->functionStack->setCurrentIndex(2);
-    setWindowTitle(tr("Edit - ML Client"));
+    ui->functionStack->setCurrentIndex(toInt(Page::Editor));
+    setWindowTitle(tr("Editor - ML Client"));
 }
 
 void MainWindow::onFunctionStackCurrentChanged(int index)
 {
-    ui->actionShowLoaderPage->setChecked(index == 0);
-    ui->actionShowQueryPage->setChecked(index == 1);
-    ui->actionShowEditorPage->setChecked(index == 2);
+    ui->actionShowLoaderPage->setChecked(index == toInt(Page::Loader));
+    ui->actionShowQueryPage->setChecked(index == toInt(Page::Query));
+    ui->actionShowEditorPage->setChecked(index == toInt(Page::Editor));
 }

@@ -22,7 +22,7 @@
     <item>
      <widget class="QTabWidget" name="functionStack">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="LoaderPage" name="loaderPage">
        <attribute name="title">
@@ -36,7 +36,7 @@
       </widget>
       <widget class="EditorPage" name="editorPage">
        <attribute name="title">
-        <string>Edit</string>
+        <string>Editor</string>
        </attribute>
       </widget>
      </widget>
