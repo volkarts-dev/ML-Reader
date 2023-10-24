@@ -26,13 +26,20 @@ public:
         QString caption_;
     };
 
+    enum class Filter
+    {
+        All,
+        Modified,
+    };
+
 public:
     explicit DynamicForm(QWidget* parent = {});
 
     void clear();
     void reset(const QList<Field>& fields);
 
-    QHash<QString, QString> extractFormData();
+    QHash<QString, QString> extractFormData(Filter filter = Filter::All);
+    void fillFormData(const QHash<QString, QString>& formData);
 
 signals:
 

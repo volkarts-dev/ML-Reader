@@ -12,6 +12,9 @@ add_executable(
     DataModel.h
     DynamicForm.cpp
     DynamicForm.h
+    EditorPage.cpp
+    EditorPage.h
+    EditorPage.ui
     EndpointConfig.cpp
     EndpointConfig.h
     EndpointConfigEditDlg.cpp
@@ -30,10 +33,10 @@ add_executable(
     Main.cpp
     Main.qrc
     Main.rc
+    MainInterface.h
     MainWindow.cpp
     MainWindow.h
     MainWindow.ui
-    MessageView.h
     MlClientTools.cpp
     MlClientTools.h
     PasswordStore.cpp

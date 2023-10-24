@@ -30,3 +30,14 @@ inline void mlClientQueryPatientData(MlClient* mlClient, const QHash<QString, QS
 
     mlClient->queryPatientData(patientData);
 }
+
+template<typename SuccessFunc, typename FailedFunc>
+inline void mlClientEditPatientData(MlClient* mlClient, const QString& pid, const QHash<QString, QString>& patientData,
+                                     const typename QtPrivate::FunctionPointer<SuccessFunc>::Object* target,
+                                     SuccessFunc successFunc, FailedFunc failedFunc)
+{
+    QObject::connect(mlClient, &MlClient::patientDataEdited, target, successFunc);
+    QObject::connect(mlClient, &MlClient::patientDataEditingFailed, target, failedFunc);
+
+    mlClient->editPatientData(pid, patientData);
+}

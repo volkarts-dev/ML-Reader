@@ -8,7 +8,7 @@
 #include "DataModel.h"
 #include "EndpointConfig.h"
 #include "EndpointConfigModel.h"
-#include "MessageView.h"
+#include "MainInterface.h"
 #include "MlClientTools.h"
 #include "Tools.h"
 #include <QClipboard>
@@ -119,20 +119,20 @@ void QueryPage::onExecuteButtonClicked()
 
 void QueryPage::onEditPatientBtnClicked()
 {
-
+    mainInterface_->openPage(MainInterface::Page::Editor, ui->patientPid->text());
 }
 
 void QueryPage::onCopyPidBtnClicked()
 {
     QGuiApplication::clipboard()->setText(ui->patientPid->text());
-    messageView_->showStatusMessage(tr("Copied PID to Clipboard"), 1000);
+    mainInterface_->showStatusMessage(tr("Copied PID to Clipboard"), 1000);
 }
 
 void QueryPage::onPatientDataQueringFailed(const QString& error)
 {
     setEnabled(true);
 
-    messageView_->showStatusMessage(tr("Failed to query Patient data"), 2000);
+    mainInterface_->showStatusMessage(tr("Failed to query Patient data"), 2000);
 
     QMessageBox::warning(
                 this,
@@ -148,7 +148,7 @@ void QueryPage::onPatientDataQueried(const MlClient::QueryResult& result)
 {
     setEnabled(true);
 
-    messageView_->showStatusMessage(tr("Patient data queried"), 1000);
+    mainInterface_->showStatusMessage(tr("Patient data queried"), 1000);
 
     if (!result.pid.isNull())
     {
@@ -176,7 +176,7 @@ void QueryPage::onPatientDataQueried(const MlClient::QueryResult& result)
 
 void QueryPage::onPatientDataLoadingFailed(const QString& error)
 {
-    messageView_->showStatusMessage(tr("Failed to load possible matches"), 2000);
+    mainInterface_->showStatusMessage(tr("Failed to load possible matches"), 2000);
 
     QMessageBox::warning(
                 this,
@@ -216,7 +216,7 @@ void QueryPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
 
     ui->possibleMatches->setEnabled(true);
 
-    messageView_->showStatusMessage(tr("Possible matches loaded"), 1000);
+    mainInterface_->showStatusMessage(tr("Possible matches loaded"), 1000);
 
     deleteSenderMlClient(sender());
 }

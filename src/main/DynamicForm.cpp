@@ -53,15 +53,25 @@ void DynamicForm::reset(const QList<Field>& fields)
     }
 }
 
-QHash<QString, QString> DynamicForm::extractFormData()
+QHash<QString, QString> DynamicForm::extractFormData(Filter filter)
 {
     QHash<QString, QString> formData;
 
     const auto inputs = findChildren<QLineEdit*>();
     for (const auto& input : inputs)
     {
-        formData.insert(input->objectName(), input->text());
+        if (filter == Filter::All || input->isModified())
+            formData.insert(input->objectName(), input->text());
     }
 
     return formData;
+}
+
+void DynamicForm::fillFormData(const QHash<QString, QString>& formData)
+{
+    const auto inputs = findChildren<QLineEdit*>();
+    for (const auto& input : inputs)
+    {
+        input->setText(formData[input->objectName()]);
+    }
 }

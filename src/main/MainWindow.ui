@@ -22,16 +22,21 @@
     <item>
      <widget class="QTabWidget" name="functionStack">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
-      <widget class="LoaderPage" name="loaderPage" native="true">
+      <widget class="LoaderPage" name="loaderPage">
        <attribute name="title">
         <string>Loader</string>
        </attribute>
       </widget>
-      <widget class="QueryPage" name="queryPage" native="true">
+      <widget class="QueryPage" name="queryPage">
        <attribute name="title">
         <string>Query</string>
+       </attribute>
+      </widget>
+      <widget class="EditorPage" name="editorPage">
+       <attribute name="title">
+        <string>Edit</string>
        </attribute>
       </widget>
      </widget>
@@ -61,6 +66,7 @@
     </property>
     <addaction name="actionShowLoaderPage"/>
     <addaction name="actionShowQueryPage"/>
+    <addaction name="actionShowEditorPage"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuF_unction"/>
@@ -116,6 +122,20 @@
     <string>Ctrl+2</string>
    </property>
   </action>
+  <action name="actionShowEditorPage">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Edit</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit patient data</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -128,6 +148,12 @@
    <class>QueryPage</class>
    <extends>QWidget</extends>
    <header>QueryPage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>EditorPage</class>
+   <extends>QWidget</extends>
+   <header>EditorPage.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

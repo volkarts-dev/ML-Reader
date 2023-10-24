@@ -274,7 +274,7 @@ public:
     {
         QString path = "/patients"_l1;
         QUrlQuery query{{QStringLiteral("tokenId"), tokenId()}};
-        auto body = HttpBody::fromUrlEncoded(patientData_);
+        auto body = HttpBody::urlEncodedFromHash(patientData_);
 
         auto response = startRequest(HttpRequest::Method::POST, path, query, body);
 
@@ -359,6 +359,67 @@ private:
 
 // ********************************************************
 
+class EditPatientDataConversation : public MlConversation
+{
+    Q_OBJECT
+
+public:
+    EditPatientDataConversation(QVersionNumber apiVersion, QString pid, QHash<QString, QString> patientData,
+                                 MlClient* mlClient, QObject* parent = {}) :
+        MlConversation{mlClient, parent},
+        apiVersion_{std::move(apiVersion)},
+        pid_{std::move(pid)},
+        patientData_{std::move(patientData)}
+    {
+    }
+
+    QJsonObject createTokenObject() override
+    {
+        return makeEditPatientToken(apiVersion_, pid_);
+    }
+
+    void doActualRequest() override
+    {
+        QString path = "/patients/tokenId/"_l1 + tokenId();
+        auto body = HttpBody::jsonObjectFromHash(patientData_);
+
+        auto response = startRequest(HttpRequest::Method::PUT, path, {}, body);
+
+        connect(response, &HttpResponse::finished, this,
+                [this, response](QNetworkReply::NetworkError error, int statusCode)
+        {
+            if (error || statusCode != 204)
+            {
+                const auto messageFromServer = errorMessage(response);
+
+                qCWarning(MLC_LOG_CAT)
+                        .nospace().noquote() << "Failed to edit patient data. " <<
+                                                "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
+                                                messageFromServer << "\n<<<";
+
+                emit finishedError(messageFromServer);
+                return;
+            }
+
+            emit patientDataEdited();
+
+            deleteSession();
+
+            response->deleteLater();
+        });
+    }
+
+signals:
+    void patientDataEdited();
+
+private:
+    QVersionNumber apiVersion_;
+    QString pid_;
+    QHash<QString, QString> patientData_;
+};
+
+// ********************************************************
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "MlClient.moc"
@@ -397,6 +458,18 @@ void MlClient::queryPatientData(const QHash<QString, QString>& patientData)
     });
     connect(conversation, &QueryPatientDataConversation::patientDataQueried, this, [this] (const QueryResult& data) {
         emit patientDataQueried(data);
+    });
+    conversation->start();
+}
+
+void MlClient::editPatientData(const QString& pid, const QHash<QString, QString>& patientData)
+{
+    auto conversation = new EditPatientDataConversation(apiVersion_, pid, patientData, this, this);
+    connect(conversation, &EditPatientDataConversation::finishedError, this, [this] (const QString& error) {
+        emit patientDataEditingFailed(error);
+    });
+    connect(conversation, &EditPatientDataConversation::patientDataEdited, this, [this] () {
+        emit patientDataEdited();
     });
     conversation->start();
 }

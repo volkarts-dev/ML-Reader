@@ -34,6 +34,7 @@ public:
 
     void loadPatientData(const QStringList& pids, const QStringList& fields);
     void queryPatientData(const QHash<QString, QString>& patientData);
+    void editPatientData(const QString& pid, const QHash<QString, QString>& patientData);
 
     bool askRecoverableError(const QString& title, const QString& message) override;
 
@@ -43,6 +44,9 @@ signals:
 
     void patientDataQueringFailed(const QString& error);
     void patientDataQueried(const MlClient::QueryResult& result);
+
+    void patientDataEditingFailed(const QString& error);
+    void patientDataEdited();
 
 private:
     HttpRequest createRequest(HttpRequest::Method method, const QString& path,

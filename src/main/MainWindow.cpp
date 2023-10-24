@@ -40,8 +40,9 @@ MainWindow::~MainWindow()
 
 bool MainWindow::setup()
 {
-    ui->loaderPage->setMessageView(this);
-    ui->queryPage->setMessageView(this);
+    ui->loaderPage->setMainInterface(this);
+    ui->queryPage->setMainInterface(this);
+    ui->editorPage->setMainInterface(this);
 
     ui->functionStack->setCurrentIndex(-1);
 
@@ -52,6 +53,7 @@ bool MainWindow::setup()
 
     connect(ui->actionShowLoaderPage, &QAction::triggered, this, &MainWindow::onShowLoaderPageTriggered);
     connect(ui->actionShowQueryPage, &QAction::triggered, this, &MainWindow::onShowQueryPageTriggered);
+    connect(ui->actionShowEditorPage, &QAction::triggered, this, &MainWindow::onShowEditPageTriggered);
 
     connect(ui->functionStack, &QTabWidget::currentChanged, this, &MainWindow::onFunctionStackCurrentChanged);
 
@@ -61,6 +63,28 @@ bool MainWindow::setup()
 void MainWindow::showStatusMessage(const QString& message, int timeout)
 {
     ui->statusbar->showMessage(message, timeout);
+}
+
+void MainWindow::openPage(Page page, const QVariant& openData)
+{
+    switch (page)
+    {
+        using enum Page;
+
+        case Loader:
+            ui->actionShowLoaderPage->trigger();
+            break;
+
+        case Query:
+            ui->actionShowQueryPage->trigger();
+            break;
+
+        case Editor:
+            ui->actionShowEditorPage->trigger();
+            if (!openData.isNull())
+                ui->editorPage->startEditing(openData.toString());
+            break;
+    }
 }
 
 void MainWindow::loadMainWindowState()
@@ -105,8 +129,15 @@ void MainWindow::onShowQueryPageTriggered()
     setWindowTitle(tr("Query - ML Client"));
 }
 
+void MainWindow::onShowEditPageTriggered()
+{
+    ui->functionStack->setCurrentIndex(2);
+    setWindowTitle(tr("Edit - ML Client"));
+}
+
 void MainWindow::onFunctionStackCurrentChanged(int index)
 {
     ui->actionShowLoaderPage->setChecked(index == 0);
     ui->actionShowQueryPage->setChecked(index == 1);
+    ui->actionShowEditorPage->setChecked(index == 2);
 }

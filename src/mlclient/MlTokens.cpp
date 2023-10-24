@@ -10,15 +10,20 @@
 
 namespace {
 
+QJsonObject makePidObject(const QString& pid)
+{
+    QJsonObject id;
+    id["idType"_l1] = "pid"_l1;
+    id["idString"_l1] = pid;
+    return id;
+}
+
 QJsonArray makePidList(const QStringList& pids)
 {
     QJsonArray json;
     for (const auto& pid : pids)
     {
-        QJsonObject id;
-        id["idType"_l1] = "pid"_l1;
-        id["idString"_l1] = pid;
-        json << id;
+        json << makePidObject(pid);
     }
     return json;
 }
@@ -46,6 +51,20 @@ QJsonObject makeCreatePatientToken(const QVersionNumber& apiVersion)
 
     QJsonObject token;
     token["type"_l1] = "addPatient"_l1;
+    token["data"_l1] = data;
+
+    return token;
+}
+
+QJsonObject makeEditPatientToken(const QVersionNumber& apiVersion, const QString& pid)
+{
+    QJsonObject data;
+    data["patientId"_l1] = makePidObject(pid);
+    // data["redirect"_l1] =
+    // data["fields"_l1] =
+
+    QJsonObject token;
+    token["type"_l1] = "editPatient"_l1;
     token["data"_l1] = data;
 
     return token;

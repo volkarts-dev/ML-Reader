@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "MessageView.h"
+#include "MainInterface.h"
 #include <QMainWindow>
 
 class DataModel;
@@ -12,7 +12,7 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow, public MessageView
+class MainWindow : public QMainWindow, public MainInterface
 {
     Q_OBJECT
 
@@ -24,12 +24,14 @@ public:
     ~MainWindow() override;
 
     void showStatusMessage(const QString& message, int timeout = 0) override;
+    void openPage(Page page, const QVariant& openData) override;
 
 private slots:
     void onActionEndpointConfigEdit();
     void onActionQuitTriggerd();
     void onShowLoaderPageTriggered();
     void onShowQueryPageTriggered();
+    void onShowEditPageTriggered();
     void onFunctionStackCurrentChanged(int index);
 
 private:

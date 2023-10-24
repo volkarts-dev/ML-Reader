@@ -14,7 +14,8 @@ class HttpBody
 public:
     static HttpBody fromJson(const QJsonArray& json);
     static HttpBody fromJson(const QJsonObject& json);
-    static HttpBody fromUrlEncoded(const QHash<QString, QString>& data);
+    static HttpBody jsonObjectFromHash(const QHash<QString, QString>& data);
+    static HttpBody urlEncodedFromHash(const QHash<QString, QString>& data);
 
 public:
     HttpBody();

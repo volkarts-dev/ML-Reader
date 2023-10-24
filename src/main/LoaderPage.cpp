@@ -9,7 +9,7 @@
 #include "CsvReader.h"
 #include "DataModel.h"
 #include "EndpointConfigModel.h"
-#include "MessageView.h"
+#include "MainInterface.h"
 #include "MlClientTools.h"
 #include "Tools.h"
 #include <QDebug>
@@ -99,12 +99,12 @@ void LoaderPage::updateUiState()
 
 void LoaderPage::onInputLoadingDone(bool result)
 {
-    Q_ASSERT(messageView_);
+    Q_ASSERT(mainInterface_);
 
     if (result)
-        messageView_->showStatusMessage(tr("PID file loaded successful"), 1000);
+        mainInterface_->showStatusMessage(tr("PID file loaded successful"), 1000);
     else
-        messageView_->showStatusMessage(tr("Failed to load PID file"), 2000);
+        mainInterface_->showStatusMessage(tr("Failed to load PID file"), 2000);
 
     outputData_->setModelData({}, false);
 
@@ -113,12 +113,12 @@ void LoaderPage::onInputLoadingDone(bool result)
 
 void LoaderPage::onOutputSavingDone(bool result)
 {
-    Q_ASSERT(messageView_);
+    Q_ASSERT(mainInterface_);
 
     if (result)
-        messageView_->showStatusMessage(tr("Patient data file saved successful"), 1000);
+        mainInterface_->showStatusMessage(tr("Patient data file saved successful"), 1000);
     else
-        messageView_->showStatusMessage(tr("Failed to save patient data file"), 2000);
+        mainInterface_->showStatusMessage(tr("Failed to save patient data file"), 2000);
 }
 
 void LoaderPage::onInputDataChanged()
@@ -161,7 +161,7 @@ void LoaderPage::onPatientDataLoadingFailed(const QString& error)
 {
     setEnabled(true);
 
-    messageView_->showStatusMessage(tr("Failed to load Patient data"), 2000);
+    mainInterface_->showStatusMessage(tr("Failed to load Patient data"), 2000);
 
     QMessageBox::warning(
                 this,
@@ -182,7 +182,7 @@ void LoaderPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
 
     mergePatientData(patientData);
 
-    messageView_->showStatusMessage(tr("Patient data loaded"), 1000);
+    mainInterface_->showStatusMessage(tr("Patient data loaded"), 1000);
 
     qCDebug(MLR_LOG_CAT) << "Loader Execution: Merging took" << executionTimer_.elapsed() << "ms";
     executionTimer_.restart();
@@ -203,12 +203,12 @@ void LoaderPage::onExecuteButtonClicked()
     auto fieldList = makeFieldList();
     if (fieldList.isEmpty())
     {
-        messageView_->showStatusMessage(tr("No fields selected"), 1000);
+        mainInterface_->showStatusMessage(tr("No fields selected"), 1000);
         return;
     }
 
     setEnabled(false);
-    messageView_->showStatusMessage(tr("Loading patient data ..."));
+    mainInterface_->showStatusMessage(tr("Loading patient data ..."));
 
     qCDebug(MLR_LOG_CAT) << "Loader Execution: Setup took" << executionTimer_.elapsed() << "ms";
     executionTimer_.restart();
@@ -262,8 +262,8 @@ void LoaderPage::onSaveButtonClicked()
 
 void LoaderPage::readInput(const QString &fileName)
 {
-    Q_ASSERT(messageView_);
-    messageView_->showStatusMessage(tr("Loading PID file ..."));
+    Q_ASSERT(mainInterface_);
+    mainInterface_->showStatusMessage(tr("Loading PID file ..."));
 
     app()->runJob([this, fileName]()
     {
@@ -282,8 +282,8 @@ void LoaderPage::readInput(const QString &fileName)
 
 void LoaderPage::writeOutput(const QString &fileName)
 {
-    Q_ASSERT(messageView_);
-    messageView_->showStatusMessage(tr("Saving patient data file ..."));
+    Q_ASSERT(mainInterface_);
+    mainInterface_->showStatusMessage(tr("Saving patient data file ..."));
 
     app()->runJob([this, fileName]()
     {

@@ -21,7 +21,17 @@ HttpBody HttpBody::fromJson(const QJsonObject& json)
     return {QStringLiteral("application/json"), doc.toJson()};
 }
 
-HttpBody HttpBody::fromUrlEncoded(const QHash<QString, QString>& data)
+HttpBody HttpBody::jsonObjectFromHash(const QHash<QString, QString>& data)
+{
+    QJsonObject object;
+    for (auto it = data.begin(); it != data.end(); ++it)
+    {
+        object[it.key()] = it.value();
+    }
+    return fromJson(object);
+}
+
+HttpBody HttpBody::urlEncodedFromHash(const QHash<QString, QString>& data)
 {
     QByteArray buffer;
     for (auto it = data.begin(); it != data.end(); ++it)

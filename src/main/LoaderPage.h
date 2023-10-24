@@ -8,7 +8,7 @@
 #include <QWidget>
 
 class DataModel;
-class MessageView;
+class MainInterface;
 class QDataWidgetMapper;
 
 namespace Ui {
@@ -23,7 +23,7 @@ public:
     explicit LoaderPage(QWidget* parent = {});
     ~LoaderPage() override;
 
-    void setMessageView(MessageView* messageView) { messageView_ = messageView; }
+    void setMainInterface(MainInterface* mainInterface) { mainInterface_ = mainInterface; }
 
 signals:
     void inputLoadingDone(bool result);
@@ -54,7 +54,7 @@ private:
 
 private:
     Ui::LoaderPage* ui;
-    MessageView* messageView_{};
+    MainInterface* mainInterface_{};
     DataModel* inputData_{};
     DataModel* outputData_{};
     QElapsedTimer executionTimer_;
