@@ -16,15 +16,8 @@ HttpResponse::HttpResponse(QNetworkReply* reply, QObject* parent) :
 
 void HttpResponse::onReplyFinished()
 {
-    if (reply_->error())
-    {
-        //statusLabel->setText(tr("Download failed:\n%1.").arg(reply->errorString()));
-    }
-    else
-    {
-        body_.setContentType(reply_->header(QNetworkRequest::ContentTypeHeader).toString());
-        body_.setBinaryData(receiveBuffer_);
-    }
+    body_.setContentType(reply_->header(QNetworkRequest::ContentTypeHeader).toString());
+    body_.setBinaryData(receiveBuffer_);
 
     auto statusCode = reply_->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     emit finished(reply_->error(), statusCode);

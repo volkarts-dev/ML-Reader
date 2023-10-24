@@ -6,6 +6,7 @@
 #include <QString>
 
 class QJsonArray;
+class QJsonDocument;
 class QJsonObject;
 
 class HttpBody
@@ -13,6 +14,7 @@ class HttpBody
 public:
     static HttpBody fromJson(const QJsonArray& json);
     static HttpBody fromJson(const QJsonObject& json);
+    static HttpBody fromUrlEncoded(const QHash<QString, QString>& data);
 
 public:
     HttpBody();
@@ -26,6 +28,7 @@ public:
 
     bool isNull() const { return contentType_.isEmpty(); }
 
+    QJsonDocument toJson() const;
     QJsonArray toJsonArray() const;
     QJsonObject toJsonObject() const;
 

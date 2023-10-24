@@ -38,3 +38,15 @@ QJsonObject makeReadPatientToken(const QVersionNumber& apiVersion, const QString
 
     return token;
 }
+
+QJsonObject makeCreatePatientToken(const QVersionNumber& apiVersion)
+{
+    QJsonObject data;
+    data["idTypes"_l1] = QJsonArray({"pid"_l1});
+
+    QJsonObject token;
+    token["type"_l1] = "addPatient"_l1;
+    token["data"_l1] = data;
+
+    return token;
+}

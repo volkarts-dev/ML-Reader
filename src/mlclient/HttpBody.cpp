@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QUrl>
 
 HttpBody HttpBody::fromJson(const QJsonArray& json)
 {
@@ -20,6 +21,20 @@ HttpBody HttpBody::fromJson(const QJsonObject& json)
     return {QStringLiteral("application/json"), doc.toJson()};
 }
 
+HttpBody HttpBody::fromUrlEncoded(const QHash<QString, QString>& data)
+{
+    QByteArray buffer;
+    for (auto it = data.begin(); it != data.end(); ++it)
+    {
+        buffer += QUrl::toPercentEncoding(it.key());
+        buffer += '=';
+        buffer += QUrl::toPercentEncoding(it.value());
+        buffer += '&';
+    }
+
+    return {QStringLiteral("application/x-www-form-urlencoded"), buffer};
+}
+
 HttpBody::HttpBody()
 {
 }
@@ -30,14 +45,17 @@ HttpBody::HttpBody(QString contentType, QByteArray binaryData) :
 {
 }
 
+QJsonDocument HttpBody::toJson() const
+{
+    return QJsonDocument::fromJson(binaryData_);
+}
+
 QJsonArray HttpBody::toJsonArray() const
 {
-    auto json = QJsonDocument::fromJson(binaryData_);
-    return json.array();
+    return toJson().array();
 }
 
 QJsonObject HttpBody::toJsonObject() const
 {
-    auto json = QJsonDocument::fromJson(binaryData_);
-    return json.object();
+    return toJson().object();
 }

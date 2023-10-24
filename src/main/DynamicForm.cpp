@@ -52,3 +52,16 @@ void DynamicForm::reset(const QList<Field>& fields)
         layout_->addRow(caption, input);
     }
 }
+
+QHash<QString, QString> DynamicForm::extractFormData()
+{
+    QHash<QString, QString> formData;
+
+    const auto inputs = findChildren<QLineEdit*>();
+    for (const auto& input : inputs)
+    {
+        formData.insert(input->objectName(), input->text());
+    }
+
+    return formData;
+}

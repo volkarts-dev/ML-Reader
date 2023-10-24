@@ -9,6 +9,7 @@
 #include "HttpResponse.h"
 #include "Tools.h"
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QUrlQuery>
 #include <utility>
@@ -124,7 +125,7 @@ protected:
 
     inline QString errorMessage(const HttpResponse* response)
     {
-        const auto& buffer = response->receiveBuffer();
+        const auto& buffer = response->body().binaryData();
         if (buffer.trimmed().isEmpty())
             return response->networkErrorString();
         return QString::fromUtf8(buffer);
@@ -147,6 +148,8 @@ private:
     QString sessionId_{};
     QString tokenId_{};
 };
+
+// ********************************************************
 
 class LoadPatientDataConversation : public MlConversation
 {
@@ -196,9 +199,9 @@ public:
 
             emit patientDataLoaded(patientData);
 
-            response->deleteLater();
-
             deleteSession();
+
+            response->deleteLater();
         });
     }
 
@@ -217,7 +220,7 @@ private:
 
             MlClient::PatientRecord rec;
 
-            rec.insert("pid"_l1, pid);
+            rec.insert(MlClient::ID_TYPE, pid);
 
             for (auto it = fields.begin(); it != fields.end(); ++it)
             {
@@ -235,7 +238,7 @@ private:
         for (const auto& id : ids)
         {
             const auto idObj = id.toObject();
-            if (idObj["idType"_l1].toString() == "pid"_l1)
+            if (idObj["idType"_l1].toString() == MlClient::ID_TYPE)
                 return idObj["idString"_l1].toString();
         }
         return {};
@@ -247,10 +250,123 @@ private:
     QStringList fields_;
 };
 
+// ********************************************************
+
+class QueryPatientDataConversation : public MlConversation
+{
+    Q_OBJECT
+
+public:
+    QueryPatientDataConversation(QVersionNumber apiVersion, QHash<QString, QString> patientData,
+                                 MlClient* mlClient, QObject* parent = {}) :
+        MlConversation{mlClient, parent},
+        apiVersion_{std::move(apiVersion)},
+        patientData_{std::move(patientData)}
+    {
+    }
+
+    QJsonObject createTokenObject() override
+    {
+        return makeCreatePatientToken(apiVersion_);
+    }
+
+    void doActualRequest() override
+    {
+        QString path = "/patients"_l1;
+        QUrlQuery query{{QStringLiteral("tokenId"), tokenId()}};
+        auto body = HttpBody::fromUrlEncoded(patientData_);
+
+        auto response = startRequest(HttpRequest::Method::POST, path, query, body);
+
+        connect(response, &HttpResponse::finished, this,
+                [this, response](QNetworkReply::NetworkError error, int statusCode)
+        {
+            if ((error && error != QNetworkReply::ContentConflictError) || (statusCode != 201 && statusCode != 409))
+            {
+                const auto messageFromServer = errorMessage(response);
+
+                qCWarning(MLC_LOG_CAT)
+                        .nospace().noquote() << "Failed to query patient data. " <<
+                                                "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
+                                                messageFromServer << "\n<<<";
+
+                emit finishedError(messageFromServer);
+                return;
+            }
+
+            MlClient::QueryResult queryResult;
+
+            const auto returnValue = response->body().toJson();
+            if (returnValue.isArray())
+            {
+                parseResponse(queryResult, returnValue.array());
+            }
+            else
+            {
+                parseConflictResponse(queryResult, returnValue.object());
+            }
+
+            emit patientDataQueried(queryResult);
+
+            deleteSession();
+
+            response->deleteLater();
+        });
+    }
+
+signals:
+    void patientDataQueried(const MlClient::QueryResult& data);
+
+private:
+    void parseResponse(MlClient::QueryResult& queryResult, const QJsonArray& json)
+    {
+        for (const auto& idVal : json)
+        {
+            const auto idObject = idVal.toObject();
+
+            const auto idType = idObject["idType"_l1].toString();
+            if (idType == MlClient::ID_TYPE)
+            {
+                queryResult.pid = idObject["idString"_l1].toString();
+                queryResult.tentative = idObject["tentative"_l1].toBool();
+                break;
+            }
+        }
+    }
+
+    void parseConflictResponse(MlClient::QueryResult& queryResult, const QJsonObject& json)
+    {
+        const auto possibleMatches = json["possibleMatches"_l1].toArray();
+        for (const auto& match : possibleMatches)
+        {
+            const auto matchObject = match.toObject();
+
+            const auto idType = matchObject["idType"_l1].toString();
+            if (idType != MlClient::ID_TYPE)
+            {
+                qCWarning(MLC_LOG_CAT) << "Received unknown id type" << idType;
+                continue;
+            }
+
+            queryResult.possibleMatchPids << matchObject["idString"_l1].toString();
+        }
+    }
+
+private:
+    QVersionNumber apiVersion_;
+    QHash<QString, QString> patientData_;
+};
+
+// ********************************************************
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "MlClient.moc"
 #pragma GCC diagnostic pop
+
+// ********************************************************
+
+const QString MlClient::ID_TYPE = QStringLiteral("pid");
 
 MlClient::MlClient(QString baseUrl, QVersionNumber apiVersion, QString apiKey, QObject* parent) :
     QObject{parent},
@@ -269,6 +385,18 @@ void MlClient::loadPatientData(const QStringList& pids, const QStringList& field
     });
     connect(conversation, &LoadPatientDataConversation::patientDataLoaded, this, [this] (const PatientData& data) {
         emit patientDataLoaded(data);
+    });
+    conversation->start();
+}
+
+void MlClient::queryPatientData(const QHash<QString, QString>& patientData)
+{
+    auto conversation = new QueryPatientDataConversation(apiVersion_, patientData, this, this);
+    connect(conversation, &QueryPatientDataConversation::finishedError, this, [this] (const QString& error) {
+        emit patientDataQueringFailed(error);
+    });
+    connect(conversation, &QueryPatientDataConversation::patientDataQueried, this, [this] (const QueryResult& data) {
+        emit patientDataQueried(data);
     });
     conversation->start();
 }

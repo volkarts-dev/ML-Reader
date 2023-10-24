@@ -10,6 +10,7 @@
 #include "DataModel.h"
 #include "EndpointConfigModel.h"
 #include "MessageView.h"
+#include "MlClientTools.h"
 #include "Tools.h"
 #include <QDebug>
 #include <QDataWidgetMapper>
@@ -31,6 +32,7 @@ LoaderPage::LoaderPage(QWidget* parent) :
 LoaderPage::~LoaderPage()
 {
     saveWidgetState();
+
     delete ui;
 }
 
@@ -168,9 +170,7 @@ void LoaderPage::onPatientDataLoadingFailed(const QString& error)
                 QMessageBox::Ok,
                 QMessageBox::Ok);
 
-    auto mlClient = qobject_cast<MlClient*>(sender());
-    Q_ASSERT(mlClient);
-    mlClient->deleteLater();
+    deleteSenderMlClient(sender());
 }
 
 void LoaderPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
@@ -190,9 +190,7 @@ void LoaderPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
 
     updateUiState();
 
-    auto mlClient = qobject_cast<MlClient*>(sender());
-    Q_ASSERT(mlClient);
-    mlClient->deleteLater();
+    deleteSenderMlClient(sender());
 }
 
 void LoaderPage::onExecuteButtonClicked()
@@ -212,26 +210,12 @@ void LoaderPage::onExecuteButtonClicked()
     setEnabled(false);
     messageView_->showStatusMessage(tr("Loading patient data ..."));
 
-    const auto model = app()->endpointConfigModel();
-    int currentEndpointIndex = ui->endpointSelector->selectedEndpoint();
-
-    const auto baseUrl = model->data(
-                model->index(currentEndpointIndex, toInt(EndpointConfig::Field::BaseURL)),
-                Qt::DisplayRole).toString();
-    const auto apiVersion = model->data(
-                model->index(currentEndpointIndex, toInt(EndpointConfig::Field::ApiVersion)),
-                Qt::DisplayRole).toString();
-
-    auto mlClient = new MlClient{
-            baseUrl,
-            QVersionNumber::fromString(apiVersion),
-            ui->endpointSelector->currentApiKey()};
-
-    connect(mlClient, &MlClient::patientDataLoadingFailed, this, &LoaderPage::onPatientDataLoadingFailed);
-    connect(mlClient, &MlClient::patientDataLoaded, this, &LoaderPage::onPatientDataLoaded);
-
     qCDebug(MLR_LOG_CAT) << "Loader Execution: Setup took" << executionTimer_.elapsed() << "ms";
     executionTimer_.restart();
+
+    auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
+    mlClientLoadPatientData(mlClient, makePidList(), fieldList,
+                             this, &LoaderPage::onPatientDataLoaded, &LoaderPage::onPatientDataLoadingFailed);
 
     mlClient->loadPatientData(makePidList(), fieldList);
 }

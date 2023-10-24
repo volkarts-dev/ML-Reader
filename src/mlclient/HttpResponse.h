@@ -19,7 +19,6 @@ private:
 
 public:
     QString networkErrorString() const { return reply_->errorString(); }
-    const QByteArray& receiveBuffer() const { return receiveBuffer_; }
     const HttpBody& body() const { return body_; }
 
 signals:

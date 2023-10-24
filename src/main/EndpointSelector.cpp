@@ -42,10 +42,8 @@ QUuid EndpointSelector::currentEndpointUuid()
     auto index = ui->endpointSelector->currentIndex();
     if (index == -1)
         return {};
-
     auto* model = app()->endpointConfigModel();
-    auto uuidData = model->data(model->index(index, toInt(EndpointConfig::Field::Uuid)),
-                            Qt::DisplayRole);
+    auto uuidData = model->data(model->index(index, toInt(EndpointConfig::Field::Uuid)), Qt::DisplayRole);
     return uuidData.toUuid();
 }
 
@@ -72,6 +70,16 @@ void EndpointSelector::saveApiKey()
             app()->passwordStore()->savePassword(currentEndpointUuid(), ui->apiKey->text());
         ui->apiKey->setModified(false);
     }
+}
+
+QStringList EndpointSelector::currentFieldList() const
+{
+    auto index = ui->endpointSelector->currentIndex();
+    if (index == -1)
+        return {};
+    auto model = app()->endpointConfigModel();
+    auto fieldsData = model->data(model->index(index, toInt(EndpointConfig::Field::Fields)), Qt::DisplayRole);
+    return fieldsData.toStringList();
 }
 
 void EndpointSelector::changeEvent(QEvent* event)

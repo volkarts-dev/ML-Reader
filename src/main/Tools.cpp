@@ -5,7 +5,7 @@
 
 Q_LOGGING_CATEGORY(MLR_LOG_CAT, "va.mlreader", QtMsgType::QtDebugMsg)
 
-int indexClamp(int value, int max)
+int indexClamp(int value, int max, int min)
 {
-    return qMin(max, qMax(-1, value));
+    return qMin(max, qMax(min, value));
 }

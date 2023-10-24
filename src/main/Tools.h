@@ -8,7 +8,7 @@
 
 Q_DECLARE_LOGGING_CATEGORY(MLR_LOG_CAT)
 
-int indexClamp(int value, int max);
+int indexClamp(int value, int max, int min = -1);
 
 template<typename T>
 inline int toInt(T value)

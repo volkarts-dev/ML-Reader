@@ -23,6 +23,8 @@ public:
     QString currentApiKey() const;
     void saveApiKey();
 
+    QStringList currentFieldList() const;
+
 signals:
     void selectedEnpointChanged(int index);
 
@@ -33,7 +35,6 @@ private slots:
     void onEndpointSelectorChanged(int index);
     void onPasswordLoaded(bool result, const QUuid& uuid, const QString& password);
     void onSaveApiKeyChanged(bool state);
-
 
 private:
     void setup();

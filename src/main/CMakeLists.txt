@@ -34,6 +34,8 @@ add_executable(
     MainWindow.h
     MainWindow.ui
     MessageView.h
+    MlClientTools.cpp
+    MlClientTools.h
     PasswordStore.cpp
     PasswordStore.h
     QueryPage.cpp

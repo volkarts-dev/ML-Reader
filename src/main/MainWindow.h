@@ -28,6 +28,9 @@ public:
 private slots:
     void onActionEndpointConfigEdit();
     void onActionQuitTriggerd();
+    void onShowLoaderPageTriggered();
+    void onShowQueryPageTriggered();
+    void onFunctionStackCurrentChanged(int index);
 
 private:
     bool setup();

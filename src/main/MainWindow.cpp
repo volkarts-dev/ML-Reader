@@ -40,12 +40,20 @@ MainWindow::~MainWindow()
 
 bool MainWindow::setup()
 {
-    ui->loaderPage->setMainWindow(this);
+    ui->loaderPage->setMessageView(this);
+    ui->queryPage->setMessageView(this);
+
+    ui->functionStack->setCurrentIndex(-1);
 
     loadMainWindowState();
 
     connect(ui->actionEndpointConfigEdit, &QAction::triggered, this, &MainWindow::onActionEndpointConfigEdit);
     connect(ui->actionQuit, &QAction::triggered, this, &MainWindow::onActionQuitTriggerd);
+
+    connect(ui->actionShowLoaderPage, &QAction::triggered, this, &MainWindow::onShowLoaderPageTriggered);
+    connect(ui->actionShowQueryPage, &QAction::triggered, this, &MainWindow::onShowQueryPageTriggered);
+
+    connect(ui->functionStack, &QTabWidget::currentChanged, this, &MainWindow::onFunctionStackCurrentChanged);
 
     return true;
 }
@@ -62,7 +70,7 @@ void MainWindow::loadMainWindowState()
     restoreGeometry(s.value("Window/Geometry").toByteArray());
     restoreState(s.value("Window/State").toByteArray());
     ui->functionStack->setCurrentIndex(indexClamp(s.value("Window/FunctionPage").toInt(),
-                                                         ui->functionStack->count() - 1));
+                                                         ui->functionStack->count() - 1, 0));
 }
 
 void MainWindow::saveMainWindowState()
@@ -83,4 +91,22 @@ void MainWindow::onActionEndpointConfigEdit()
 void MainWindow::onActionQuitTriggerd()
 {
     QApplication::quit();
+}
+
+void MainWindow::onShowLoaderPageTriggered()
+{
+    ui->functionStack->setCurrentIndex(0);
+    setWindowTitle(tr("Loader - ML Client"));
+}
+
+void MainWindow::onShowQueryPageTriggered()
+{
+    ui->functionStack->setCurrentIndex(1);
+    setWindowTitle(tr("Query - ML Client"));
+}
+
+void MainWindow::onFunctionStackCurrentChanged(int index)
+{
+    ui->actionShowLoaderPage->setChecked(index == 0);
+    ui->actionShowQueryPage->setChecked(index == 1);
 }
