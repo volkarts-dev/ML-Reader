@@ -1,5 +1,21 @@
 <RCC>
     <qresource prefix="/">
         <file>icons/app.svg</file>
+        <file>icons/breeze/actions/16/document-open.svg</file>
+        <file>icons/breeze/actions/16/document-save.svg</file>
+        <file>icons/breeze/actions/16/edit-copy.svg</file>
+        <file>icons/breeze/actions/16/go-jump.svg</file>
+        <file>icons/breeze/actions/16/list-add.svg</file>
+        <file>icons/breeze/actions/16/list-remove.svg</file>
+        <file>icons/breeze/actions/22/document-open.svg</file>
+        <file>icons/breeze/actions/22/document-save.svg</file>
+        <file>icons/breeze/actions/22/edit-copy.svg</file>
+        <file>icons/breeze/actions/22/go-jump.svg</file>
+        <file>icons/breeze/actions/22/list-add.svg</file>
+        <file>icons/breeze/actions/22/list-remove.svg</file>
+        <file>icons/breeze/actions/32/document-open.svg</file>
+        <file>icons/breeze/actions/32/document-save.svg</file>
+        <file>icons/breeze/actions/32/go-jump.svg</file>
+        <file>icons/breeze/index.theme</file>
     </qresource>
 </RCC>

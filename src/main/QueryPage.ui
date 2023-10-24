@@ -66,6 +66,9 @@
      <property name="text">
       <string>Query I-Data</string>
      </property>
+     <property name="icon">
+      <iconset theme="go-jump"/>
+     </property>
      <property name="shortcut">
       <string>Ctrl+Return</string>
      </property>
@@ -111,7 +114,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>315</width>
+            <width>280</width>
             <height>550</height>
            </rect>
           </property>
@@ -211,6 +214,9 @@
               <property name="text">
                <string>Edit patient data</string>
               </property>
+              <property name="icon">
+               <iconset theme="document-open"/>
+              </property>
              </widget>
             </item>
             <item>
@@ -230,6 +236,9 @@
              <widget class="QPushButton" name="copyPidBtn">
               <property name="text">
                <string>Copy PID to clipboard</string>
+              </property>
+              <property name="icon">
+               <iconset theme="edit-copy"/>
               </property>
              </widget>
             </item>

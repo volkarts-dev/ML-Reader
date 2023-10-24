@@ -63,12 +63,18 @@
             <property name="text">
              <string>Add</string>
             </property>
+            <property name="icon">
+             <iconset theme="list-add"/>
+            </property>
            </widget>
           </item>
           <item>
            <widget class="QToolButton" name="removeBtn">
             <property name="text">
              <string>Remove</string>
+            </property>
+            <property name="icon">
+             <iconset theme="list-remove"/>
             </property>
            </widget>
           </item>

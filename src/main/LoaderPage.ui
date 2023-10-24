@@ -96,6 +96,9 @@
      <property name="text">
       <string>Load I-Data</string>
      </property>
+     <property name="icon">
+      <iconset theme="go-jump"/>
+     </property>
      <property name="shortcut">
       <string>Ctrl+Return</string>
      </property>
@@ -155,6 +158,9 @@
           <widget class="QPushButton" name="loadBtn">
            <property name="text">
             <string>Load</string>
+           </property>
+           <property name="icon">
+            <iconset theme="document-open"/>
            </property>
            <property name="shortcut">
             <string>Ctrl+O</string>
@@ -262,6 +268,9 @@
           <widget class="QPushButton" name="saveBtn">
            <property name="text">
             <string>Save</string>
+           </property>
+           <property name="icon">
+            <iconset theme="document-save"/>
            </property>
            <property name="shortcut">
             <string>Ctrl+S</string>

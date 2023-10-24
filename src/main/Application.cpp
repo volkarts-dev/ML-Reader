@@ -31,6 +31,9 @@ Application::Application(int& argc, char** argv) :
     Application::setApplicationName(QStringLiteral("mlreader"));
     Application::setOrganizationName(QStringLiteral("volkarts.com"));
     Application::setOrganizationDomain(QStringLiteral("volkarts.com"));
+
+    if (QIcon::themeName().isEmpty())
+        QIcon::setThemeName(QStringLiteral("breeze"));
 }
 
 Application::~Application()
