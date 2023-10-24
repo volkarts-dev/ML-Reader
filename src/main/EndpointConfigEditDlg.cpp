@@ -37,6 +37,8 @@ void EndpointConfigEditDlg::setup()
 
     ui->detailsContainer->setEnabled(false);
 
+    ui->fields->setEditable(true);
+
     mapper_->setModel(app()->endpointConfigModel());
     mapper_->addMapping(ui->name, static_cast<int>(EndpointConfig::Field::Name));
     mapper_->addMapping(ui->baseURL, static_cast<int>(EndpointConfig::Field::BaseURL));
