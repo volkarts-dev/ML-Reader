@@ -94,7 +94,10 @@
    <item>
     <widget class="QPushButton" name="executeBtn">
      <property name="text">
-      <string>Load IData</string>
+      <string>Load I-Data</string>
+     </property>
+     <property name="shortcut">
+      <string>Ctrl+Return</string>
      </property>
     </widget>
    </item>
@@ -152,6 +155,9 @@
           <widget class="QPushButton" name="loadBtn">
            <property name="text">
             <string>Load</string>
+           </property>
+           <property name="shortcut">
+            <string>Ctrl+O</string>
            </property>
           </widget>
          </item>
@@ -257,6 +263,9 @@
            <property name="text">
             <string>Save</string>
            </property>
+           <property name="shortcut">
+            <string>Ctrl+S</string>
+           </property>
           </widget>
          </item>
         </layout>
@@ -316,15 +325,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ListWidgetInput</class>
-   <extends>QListWidget</extends>
-   <header>ListWidgetInput.h</header>
-  </customwidget>
-  <customwidget>
    <class>EndpointSelector</class>
    <extends>QWidget</extends>
    <header>EndpointSelector.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ListWidgetInput</class>
+   <extends>QListWidget</extends>
+   <header>ListWidgetInput.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
