@@ -114,6 +114,8 @@ void EndpointSelector::onEndpointSelectorChanged(int index)
 
 void EndpointSelector::onPasswordLoaded(bool result, const QUuid& uuid, const QString& password)
 {
+    Q_UNUSED(result)
+
     if (uuid != currentEndpointUuid())
         return;
 

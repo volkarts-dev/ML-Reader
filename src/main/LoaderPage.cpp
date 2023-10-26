@@ -154,6 +154,8 @@ void LoaderPage::onSelectedEnpointChanged(int index)
 
 void LoaderPage::onPidColumSelectorChanged(int index)
 {
+    Q_UNUSED(index)
+
     updateUiState();
 }
 

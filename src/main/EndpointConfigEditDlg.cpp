@@ -71,6 +71,8 @@ void EndpointConfigEditDlg::onRemoveButtonClicked()
 
 void EndpointConfigEditDlg::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
+    Q_UNUSED(deselected)
+
     ui->detailsContainer->setEnabled(!selected.empty());
     ui->removeBtn->setEnabled(!selected.empty());
 

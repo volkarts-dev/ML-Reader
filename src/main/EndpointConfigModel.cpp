@@ -16,11 +16,15 @@ EndpointConfigModel::~EndpointConfigModel()
 
 int EndpointConfigModel::rowCount(const QModelIndex& parent) const
 {
+    Q_UNUSED(parent)
+
     return configs_.size();
 }
 
 int EndpointConfigModel::columnCount(const QModelIndex& parent) const
 {
+    Q_UNUSED(parent)
+
     return static_cast<int>(EndpointConfig::Field::_Count);
 }
 
