@@ -77,6 +77,8 @@ HttpResponse* HttpClient::startRequest(const HttpRequest& request)
 
 void HttpClient::onAuthenticationRequired(QNetworkReply* reply, QAuthenticator* authenticator)
 {
+    Q_UNUSED(authenticator)
+
     reply->abort();
 }
 

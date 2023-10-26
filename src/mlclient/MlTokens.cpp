@@ -32,6 +32,8 @@ QJsonArray makePidList(const QStringList& pids)
 
 QJsonObject makeReadPatientToken(const QVersionNumber& apiVersion, const QStringList& pids, const QStringList& fields)
 {
+    Q_UNUSED(apiVersion)
+
     QJsonObject data;
     data["searchIds"_l1] = makePidList(pids);
     data["resultIds"_l1] = QJsonArray({"pid"_l1});
@@ -46,6 +48,8 @@ QJsonObject makeReadPatientToken(const QVersionNumber& apiVersion, const QString
 
 QJsonObject makeCreatePatientToken(const QVersionNumber& apiVersion)
 {
+    Q_UNUSED(apiVersion)
+
     QJsonObject data;
     data["idTypes"_l1] = QJsonArray({"pid"_l1});
 
@@ -58,6 +62,8 @@ QJsonObject makeCreatePatientToken(const QVersionNumber& apiVersion)
 
 QJsonObject makeEditPatientToken(const QVersionNumber& apiVersion, const QString& pid)
 {
+    Q_UNUSED(apiVersion)
+
     QJsonObject data;
     data["patientId"_l1] = makePidObject(pid);
     // data["redirect"_l1] =
