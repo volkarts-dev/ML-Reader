@@ -12,11 +12,13 @@ target_compile_definitions(qt5_config INTERFACE
 )
 
 function(configure_mocs target)
-    set(autogen_dir ${CMAKE_CURRENT_BINARY_DIR}/${target}_autogen)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(autogen_dir ${CMAKE_CURRENT_BINARY_DIR}/${target}_autogen)
 
-    set_source_files_properties(
-        ${autogen_dir}/mocs_compilation.cpp
-        PROPERTIES
-            COMPILE_FLAGS "-Wno-useless-cast"
-    )
+        set_source_files_properties(
+            ${autogen_dir}/mocs_compilation.cpp
+            PROPERTIES
+                COMPILE_FLAGS "-Wno-useless-cast"
+        )
+    endif()
 endfunction()
