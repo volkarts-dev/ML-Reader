@@ -21,7 +21,6 @@ public:
     void setSelectedEndpoint(int index);
 
     QString currentApiKey() const;
-    void saveApiKey();
 
     QStringList currentFieldList() const;
 
@@ -34,7 +33,8 @@ protected:
 private slots:
     void onEndpointSelectorChanged(int index);
     void onPasswordLoaded(bool result, const QUuid& uuid, const QString& password);
-    void onSaveApiKeyChanged(bool state);
+    void onApiKeyChanged();
+    void onSaveApiKeyChanged(int state);
 
 private:
     void setup();
@@ -42,6 +42,7 @@ private:
 
 private:
     Ui::EndpointSelector* ui;
+    bool endpointChanging_{};
 
     Q_DISABLE_COPY_MOVE(EndpointSelector)
 };
