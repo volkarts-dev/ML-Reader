@@ -17,14 +17,8 @@ public:
     bool savePassword(const QUuid& uuid, const QString& passwd);
     bool removePassword(const QUuid& uuid);
 
-    void waitAllJobsDone(int timeout = -1);
-
 signals:
     void passwordLoaded(bool result, const QUuid& uuid, const QString& passwd);
     void passwordSaved(bool result, const QUuid& uuid);
     void passwordRemoved(bool result, const QUuid& uuid);
-    void allJobsDone();
-
-private:
-    int jobCount_;
 };
