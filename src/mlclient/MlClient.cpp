@@ -52,7 +52,8 @@ private:
                                                 "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
                                                 messageFromServer << "\n<<<";
 
-                emit finishedError(messageFromServer);
+                emit finishedError(statusCode != 404 ?
+                            messageFromServer : tr("Mainzelliste not found on server. Check the BaseURL."));
                 return;
             }
 
@@ -125,6 +126,12 @@ protected:
 
     inline QString errorMessage(const HttpResponse* response)
     {
+        const auto error = response->networkError();
+        if (error < 200)
+        {
+            return tr("Could not connect to Mainzelliste server. Check internet connection or the BaseURL");
+        }
+
         const auto& buffer = response->body().binaryData();
         if (buffer.trimmed().isEmpty())
             return response->networkErrorString();
