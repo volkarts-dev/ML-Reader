@@ -32,6 +32,7 @@ void EndpointSelector::setup()
     connect(ui->endpointSelector, qOverload<int>(&QComboBox::currentIndexChanged),
             this, &EndpointSelector::onEndpointSelectorChanged);
 
+    connect(ui->apiKey, &QLineEdit::editingFinished, this, &EndpointSelector::onApiKeyChanged);
     connect(ui->saveApiKey, &QCheckBox::stateChanged, this, &EndpointSelector::onSaveApiKeyChanged);
 
     connect(app()->passwordStore(), &PasswordStore::passwordLoaded, this, &EndpointSelector::onPasswordLoaded);
@@ -62,16 +63,6 @@ QString EndpointSelector::currentApiKey() const
     return ui->apiKey->text();
 }
 
-void EndpointSelector::saveApiKey()
-{
-    if (ui->apiKey->isModified())
-    {
-        if (ui->saveApiKey->isChecked())
-            app()->passwordStore()->savePassword(currentEndpointUuid(), ui->apiKey->text());
-        ui->apiKey->setModified(false);
-    }
-}
-
 QStringList EndpointSelector::currentFieldList() const
 {
     auto index = ui->endpointSelector->currentIndex();
@@ -99,11 +90,24 @@ void EndpointSelector::changeEvent(QEvent* event)
 
 void EndpointSelector::onEndpointSelectorChanged(int index)
 {
-    auto model = app()->endpointConfigModel();
-    auto modelIndex = model->index(index, toInt(EndpointConfig::Field::BaseURL));
-    ui->baseURL->setText(model->data(modelIndex, Qt::DisplayRole).toString());
+    endpointChanging_ = true;
 
-    app()->passwordStore()->loadPassword(currentEndpointUuid());
+    auto model = app()->endpointConfigModel();
+    {
+        const auto mi = model->index(index, toInt(EndpointConfig::Field::BaseURL));
+        ui->baseURL->setText(model->data(mi, Qt::DisplayRole).toString());
+    }
+    {
+        const auto mi = model->index(index, toInt(EndpointConfig::Field::SaveApiKey));
+        ui->saveApiKey->setCheckState(model->data(mi, Qt::DisplayRole).toBool() ? Qt::Checked : Qt::Unchecked);
+    }
+
+    endpointChanging_ = false;
+
+    ui->apiKey->setText({});
+    if (ui->saveApiKey->isChecked())
+        app()->passwordStore()->loadPassword(currentEndpointUuid());
+
 
     emit selectedEnpointChanged(index);
 }
@@ -116,10 +120,24 @@ void EndpointSelector::onPasswordLoaded(bool result, const QUuid& uuid, const QS
     ui->apiKey->setText(password);
 }
 
-void EndpointSelector::onSaveApiKeyChanged(bool state)
+void EndpointSelector::onApiKeyChanged()
 {
-    if (!state)
-        app()->passwordStore()->removePassword(currentEndpointUuid());
+    if (ui->saveApiKey->isChecked())
+        app()->passwordStore()->savePassword(currentEndpointUuid(), ui->apiKey->text());
+}
+
+void EndpointSelector::onSaveApiKeyChanged(int state)
+{
+    if (endpointChanging_)
+        return;
+
+    if (state == Qt::Checked)
+        app()->passwordStore()->savePassword(currentEndpointUuid(), ui->apiKey->text());
     else
-        ui->apiKey->setModified(true);
+        app()->passwordStore()->removePassword(currentEndpointUuid());
+
+    auto model = app()->endpointConfigModel();
+    const auto mi = model->index(ui->endpointSelector->currentIndex(), toInt(EndpointConfig::Field::SaveApiKey));
+    model->setData(mi, state == Qt::Checked, Qt::EditRole);
+    app()->endpointConfigModel()->save();
 }

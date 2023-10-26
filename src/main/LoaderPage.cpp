@@ -195,8 +195,6 @@ void LoaderPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
 
 void LoaderPage::onExecuteButtonClicked()
 {
-    ui->endpointSelector->saveApiKey();
-
     executionTimer_.start();
     qCDebug(MLR_LOG_CAT) << "Loader Execution: Started";
 
