@@ -22,6 +22,7 @@ void setHeaders(QNetworkRequest& request, const QHash<QString, QString>& headers
 } // namespace
 
 HttpClient::HttpClient(HttpUserDelegate* delegate, QObject* parent) :
+    QObject{parent},
     delegate_{delegate}
 {
     connect(&qnam_, &QNetworkAccessManager::authenticationRequired, this, &HttpClient::onAuthenticationRequired);
