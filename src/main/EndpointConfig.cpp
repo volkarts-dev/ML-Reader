@@ -33,6 +33,9 @@ void EndpointConfig::load(const QSettings& s)
 
 void EndpointConfig::save(QSettings& s)
 {
+    if (data_[toInt(Field::Uuid)].toUuid().isNull())
+        data_[toInt(Field::Uuid)] = QUuid::createUuid();
+
     s.setValue(QStringLiteral("Uuid"), data_[toInt(Field::Uuid)]);
     s.setValue(QStringLiteral("Name"), data_[toInt(Field::Name)]);
     s.setValue(QStringLiteral("BaseURL"), data_[toInt(Field::BaseURL)]);
