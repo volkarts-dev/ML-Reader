@@ -483,6 +483,8 @@ void MlClient::editPatientData(const QString& pid, const QHash<QString, QString>
 
 bool MlClient::askRecoverableError(const QString& title, const QString& message)
 {
+    Q_UNUSED(title)
+    Q_UNUSED(message)
     return true;
 }
 

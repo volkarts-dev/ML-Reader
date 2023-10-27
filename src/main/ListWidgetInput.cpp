@@ -65,6 +65,8 @@ void ListWidgetInput::setItems(const QStringList& items)
 
 void ListWidgetInput::onSelectionChanged(const QItemSelection& selected, const QItemSelection& unselected)
 {
+    Q_UNUSED(unselected)
+
     actionRemoveItem_->setEnabled(!selected.isEmpty());
 }
 
