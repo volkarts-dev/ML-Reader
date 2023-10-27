@@ -35,6 +35,7 @@ private slots:
     void onPatientDataQueried(const MlClient::QueryResult& result);
     void onPatientDataLoadingFailed(const QString& error);
     void onPatientDataLoaded(const MlClient::PatientData& patientData);
+    void onPossibleMatchesDoubleClicked(const QModelIndex& index);
 
 private:
     void setup();

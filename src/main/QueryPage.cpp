@@ -44,6 +44,8 @@ void QueryPage::setup()
     connect(ui->editPatientBtn, &QAbstractButton::clicked, this, &QueryPage::onEditPatientBtnClicked);
     connect(ui->copyPidBtn, &QAbstractButton::clicked, this, &QueryPage::onCopyPidBtnClicked);
 
+    connect(ui->possibleMatches, &QTableView::doubleClicked, this, &QueryPage::onPossibleMatchesDoubleClicked);
+
     loadWidgetState();
 }
 
@@ -219,4 +221,25 @@ void QueryPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
     mainInterface_->showStatusMessage(tr("Possible matches loaded"), 1000);
 
     deleteSenderMlClient(sender());
+}
+
+void QueryPage::onPossibleMatchesDoubleClicked(const QModelIndex& index)
+{
+    int pidColumn = -1;
+    for (int i = 0; i < possibleMatchesModel_->columnCount(); ++i)
+    {
+        if (possibleMatchesModel_->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString() == MlClient::ID_TYPE)
+        {
+            pidColumn = i;
+            break;
+        }
+    }
+
+    if (pidColumn == -1)
+        return;
+
+    const auto pidIndex = possibleMatchesModel_->index(index.row(), pidColumn);
+    const auto pid = possibleMatchesModel_->data(pidIndex, Qt::DisplayRole);
+
+    mainInterface_->openPage(MainInterface::Page::Editor, pid);
 }
