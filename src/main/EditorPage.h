@@ -25,11 +25,17 @@ public:
 
     void startEditing(const QString& pid);
 
+public slots:
+    void setSelectedEndpoint(int index);
+
+signals:
+    void selectedEndpointChanged(int index);
+
 protected:
     void changeEvent(QEvent* event) override;
 
 private slots:
-    void onSelectedEnpointChanged(int index);
+    void onSelectedEndpointChanged(int index);
     void onLoadIDataBtnClicked();
     void onSaveBtnClicked();
     void onAbortBtnClicked();

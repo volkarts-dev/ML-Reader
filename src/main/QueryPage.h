@@ -23,11 +23,17 @@ public:
 
     void setMainInterface(MainInterface* mainInterface) { mainInterface_ = mainInterface; }
 
+public slots:
+    void setSelectedEndpoint(int index);
+
+signals:
+    void selectedEndpointChanged(int index);
+
 protected:
     void changeEvent(QEvent* event) override;
 
 private slots:
-    void onSelectedEnpointChanged(int index);
+    void onSelectedEndpointChanged(int index);
     void onExecuteButtonClicked();
     void onEditPatientBtnClicked();
     void onCopyPidBtnClicked();

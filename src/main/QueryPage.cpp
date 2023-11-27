@@ -38,7 +38,7 @@ void QueryPage::setup()
 
     ui->possibleMatches->setModel(possibleMatchesModel_);
 
-    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &QueryPage::onSelectedEnpointChanged);
+    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &QueryPage::onSelectedEndpointChanged);
 
     connect(ui->executeBtn, &QAbstractButton::clicked, this, &QueryPage::onExecuteButtonClicked);
     connect(ui->editPatientBtn, &QAbstractButton::clicked, this, &QueryPage::onEditPatientBtnClicked);
@@ -67,6 +67,11 @@ void QueryPage::saveWidgetState()
     s.setValue("Window/QueryPage/Splitter", ui->splitter->saveState());
 }
 
+void QueryPage::setSelectedEndpoint(int index)
+{
+    ui->endpointSelector->setSelectedEndpoint(index);
+}
+
 void QueryPage::updateUiState()
 {
     bool endpointSelected = ui->endpointSelector->selectedEndpoint() != -1;
@@ -89,7 +94,7 @@ void QueryPage::changeEvent(QEvent* event)
     }
 }
 
-void QueryPage::onSelectedEnpointChanged(int index)
+void QueryPage::onSelectedEndpointChanged(int index)
 {
     QList<DynamicForm::Field> dynamicFields;
 
@@ -108,6 +113,8 @@ void QueryPage::onSelectedEnpointChanged(int index)
     ui->patientDataForm->reset(dynamicFields);
 
     updateUiState();
+
+    emit selectedEndpointChanged(index);
 }
 
 void QueryPage::onExecuteButtonClicked()
