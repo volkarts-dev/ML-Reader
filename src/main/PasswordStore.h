@@ -13,12 +13,12 @@ class PasswordStore : public QObject
 public:
     explicit PasswordStore(QObject* parent = {});
 
-    bool loadPassword(const QUuid& uuid);
-    bool savePassword(const QUuid& uuid, const QString& passwd);
-    bool removePassword(const QUuid& uuid);
+    bool loadPassword(const QUuid& uuid, void* context = {});
+    bool savePassword(const QUuid& uuid, const QString& passwd, void* context = {});
+    bool removePassword(const QUuid& uuid, void* context = {});
 
 signals:
-    void passwordLoaded(bool result, const QUuid& uuid, const QString& passwd);
-    void passwordSaved(bool result, const QUuid& uuid);
-    void passwordRemoved(bool result, const QUuid& uuid);
+    void passwordLoaded(bool result, const QUuid& uuid, const QString& passwd, void* context = {});
+    void passwordSaved(bool result, const QUuid& uuid, void* context = {});
+    void passwordRemoved(bool result, const QUuid& uuid, void* context = {});
 };

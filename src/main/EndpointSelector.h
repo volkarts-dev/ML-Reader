@@ -32,7 +32,8 @@ protected:
 
 private slots:
     void onEndpointSelectorChanged(int index);
-    void onPasswordLoaded(bool result, const QUuid& uuid, const QString& password);
+    void onPasswordLoaded(bool result, const QUuid& uuid, const QString& password, void* context);
+    void onPasswordSaved(bool result, const QUuid& uuid, void* context);
     void onApiKeyChanged();
     void onSaveApiKeyChanged(int state);
 

@@ -36,6 +36,7 @@ void EndpointSelector::setup()
     connect(ui->saveApiKey, &QCheckBox::stateChanged, this, &EndpointSelector::onSaveApiKeyChanged);
 
     connect(app()->passwordStore(), &PasswordStore::passwordLoaded, this, &EndpointSelector::onPasswordLoaded);
+    connect(app()->passwordStore(), &PasswordStore::passwordSaved, this, &EndpointSelector::onPasswordSaved);
 }
 
 QUuid EndpointSelector::currentEndpointUuid()
@@ -106,15 +107,16 @@ void EndpointSelector::onEndpointSelectorChanged(int index)
 
     ui->apiKey->setText({});
     if (ui->saveApiKey->isChecked())
-        app()->passwordStore()->loadPassword(currentEndpointUuid());
+        app()->passwordStore()->loadPassword(currentEndpointUuid(), this);
 
 
     emit selectedEnpointChanged(index);
 }
 
-void EndpointSelector::onPasswordLoaded(bool result, const QUuid& uuid, const QString& password)
+void EndpointSelector::onPasswordLoaded(bool result, const QUuid& uuid, const QString& password, void* context)
 {
     Q_UNUSED(result)
+    Q_UNUSED(context)
 
     if (uuid != currentEndpointUuid())
         return;
@@ -122,10 +124,25 @@ void EndpointSelector::onPasswordLoaded(bool result, const QUuid& uuid, const QS
     ui->apiKey->setText(password);
 }
 
+void EndpointSelector::onPasswordSaved(bool result, const QUuid& uuid, void* context)
+{
+    if (!result)
+        return;
+
+    if (uuid != currentEndpointUuid())
+        return;
+
+    if (context == this)
+        return;
+
+    if (ui->saveApiKey->isChecked())
+        app()->passwordStore()->loadPassword(uuid, this);
+}
+
 void EndpointSelector::onApiKeyChanged()
 {
     if (ui->saveApiKey->isChecked())
-        app()->passwordStore()->savePassword(currentEndpointUuid(), ui->apiKey->text());
+        app()->passwordStore()->savePassword(currentEndpointUuid(), ui->apiKey->text(), this);
 }
 
 void EndpointSelector::onSaveApiKeyChanged(int state)
@@ -134,9 +151,9 @@ void EndpointSelector::onSaveApiKeyChanged(int state)
         return;
 
     if (state == Qt::Checked)
-        app()->passwordStore()->savePassword(currentEndpointUuid(), ui->apiKey->text());
+        app()->passwordStore()->savePassword(currentEndpointUuid(), ui->apiKey->text(), this);
     else
-        app()->passwordStore()->removePassword(currentEndpointUuid());
+        app()->passwordStore()->removePassword(currentEndpointUuid(), this);
 
     auto model = app()->endpointConfigModel();
     const auto mi = model->index(ui->endpointSelector->currentIndex(), toInt(EndpointConfig::Field::SaveApiKey));
