@@ -67,7 +67,8 @@
       <string>Query I-Data</string>
      </property>
      <property name="icon">
-      <iconset theme="go-jump"/>
+      <iconset theme="go-jump">
+       <normaloff>.</normaloff>.</iconset>
      </property>
      <property name="shortcut">
       <string>Ctrl+Return</string>
@@ -114,7 +115,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>280</width>
+            <width>256</width>
             <height>550</height>
            </rect>
           </property>
@@ -215,7 +216,8 @@
                <string>Edit patient data</string>
               </property>
               <property name="icon">
-               <iconset theme="document-open"/>
+               <iconset theme="document-open">
+                <normaloff>.</normaloff>.</iconset>
               </property>
              </widget>
             </item>
@@ -238,7 +240,8 @@
                <string>Copy PID to clipboard</string>
               </property>
               <property name="icon">
-               <iconset theme="edit-copy"/>
+               <iconset theme="edit-copy">
+                <normaloff>.</normaloff>.</iconset>
               </property>
              </widget>
             </item>
@@ -262,6 +265,40 @@
           <property name="bottomMargin">
            <number>0</number>
           </property>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QPushButton" name="createAnywayBtn">
+              <property name="text">
+               <string>Create patient anyway</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QLabel" name="label_4">
             <property name="text">

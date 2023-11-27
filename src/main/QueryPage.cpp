@@ -44,6 +44,8 @@ void QueryPage::setup()
     connect(ui->editPatientBtn, &QAbstractButton::clicked, this, &QueryPage::onEditPatientBtnClicked);
     connect(ui->copyPidBtn, &QAbstractButton::clicked, this, &QueryPage::onCopyPidBtnClicked);
 
+    connect(ui->createAnywayBtn, &QAbstractButton::clicked, this, &QueryPage::onCreateAnywayBtnClicked);
+
     connect(ui->possibleMatches, &QTableView::doubleClicked, this, &QueryPage::onPossibleMatchesDoubleClicked);
 
     loadWidgetState();
@@ -77,6 +79,15 @@ void QueryPage::updateUiState()
     bool endpointSelected = ui->endpointSelector->selectedEndpoint() != -1;
 
     ui->executeBtn->setEnabled(endpointSelected);
+}
+
+void QueryPage::execute(bool sureness)
+{
+    setEnabled(false);
+
+    auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
+    mlClientQueryPatientData(mlClient, ui->patientDataForm->extractFormData(), sureness,
+                             this, &QueryPage::onPatientDataQueried, &QueryPage::onPatientDataQueringFailed);
 }
 
 void QueryPage::changeEvent(QEvent* event)
@@ -119,11 +130,7 @@ void QueryPage::onSelectedEndpointChanged(int index)
 
 void QueryPage::onExecuteButtonClicked()
 {
-    setEnabled(false);
-
-    auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
-    mlClientQueryPatientData(mlClient, ui->patientDataForm->extractFormData(),
-                             this, &QueryPage::onPatientDataQueried, &QueryPage::onPatientDataQueringFailed);
+    execute(false);
 }
 
 void QueryPage::onEditPatientBtnClicked()
@@ -135,6 +142,11 @@ void QueryPage::onCopyPidBtnClicked()
 {
     QGuiApplication::clipboard()->setText(ui->patientPid->text());
     mainInterface_->showStatusMessage(tr("Copied PID to Clipboard"), 1000);
+}
+
+void QueryPage::onCreateAnywayBtnClicked()
+{
+    execute(true);
 }
 
 void QueryPage::onPatientDataQueringFailed(const QString& error)

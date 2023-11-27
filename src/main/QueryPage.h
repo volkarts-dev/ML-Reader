@@ -37,6 +37,7 @@ private slots:
     void onExecuteButtonClicked();
     void onEditPatientBtnClicked();
     void onCopyPidBtnClicked();
+    void onCreateAnywayBtnClicked();
     void onPatientDataQueringFailed(const QString& error);
     void onPatientDataQueried(const MlClient::QueryResult& result);
     void onPatientDataLoadingFailed(const QString& error);
@@ -48,6 +49,7 @@ private:
     void loadWidgetState();
     void saveWidgetState();
     void updateUiState();
+    void execute(bool sureness);
 
 private:
     Ui::QueryPage* ui;
