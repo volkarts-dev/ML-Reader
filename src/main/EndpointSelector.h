@@ -17,15 +17,17 @@ public:
     explicit EndpointSelector(QWidget* parent = {});
     ~EndpointSelector() override;
 
-    int selectedEndpoint();
-    void setSelectedEndpoint(int index);
+    int selectedEndpoint() const;
 
     QString currentApiKey() const;
 
     QStringList currentFieldList() const;
 
+public slots:
+    void setSelectedEndpoint(int index);
+
 signals:
-    void selectedEnpointChanged(int index);
+    void selectedEndpointChanged(int index);
 
 protected:
     void changeEvent(QEvent* event) override;
