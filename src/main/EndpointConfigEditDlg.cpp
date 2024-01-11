@@ -5,6 +5,7 @@
 #include "ui_EndpointConfigEditDlg.h"
 
 #include "Application.h"
+#include "EndpointConfigItemDelegate.h"
 #include "EndpointConfigModel.h"
 #include "Tools.h"
 #include <QDataWidgetMapper>
@@ -12,7 +13,8 @@
 EndpointConfigEditDlg::EndpointConfigEditDlg(QWidget* parent) :
     QDialog(parent),
     ui(new Ui::EndpointConfigEditDlg),
-    mapper_{new QDataWidgetMapper{this}}
+    mapper_{new QDataWidgetMapper{this}},
+    itemDelegate_{new EndpointConfigItemDelegate{this}}
 {
     ui->setupUi(this);
     setup();
@@ -36,14 +38,13 @@ void EndpointConfigEditDlg::setup()
     ui->configsList->setModelColumn(toInt(EndpointConfig::Field::Name));
 
     ui->detailsContainer->setEnabled(false);
-
-    ui->fields->setEditable(true);
+    mapper_->setItemDelegate(itemDelegate_);
 
     mapper_->setModel(app()->endpointConfigModel());
     mapper_->addMapping(ui->name, static_cast<int>(EndpointConfig::Field::Name));
     mapper_->addMapping(ui->baseURL, static_cast<int>(EndpointConfig::Field::BaseURL));
     mapper_->addMapping(ui->apiVersion, static_cast<int>(EndpointConfig::Field::ApiVersion));
-    mapper_->addMapping(ui->fields, static_cast<int>(EndpointConfig::Field::Fields), "items");
+    mapper_->addMapping(ui->fields, static_cast<int>(EndpointConfig::Field::Fields));
 
     connect(ui->configsList->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &EndpointConfigEditDlg::onSelectionChanged);

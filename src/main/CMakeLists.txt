@@ -25,6 +25,8 @@ add_executable(
     EndpointSelector.cpp
     EndpointSelector.h
     EndpointSelector.ui
+    EndpointConfigItemDelegate.cpp
+    EndpointConfigItemDelegate.h
     ListWidgetInput.cpp
     ListWidgetInput.h
     LoaderPage.cpp

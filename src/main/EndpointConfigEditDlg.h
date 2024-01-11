@@ -9,6 +9,7 @@ namespace Ui {
 class EndpointConfigEditDlg;
 }
 
+class EndpointConfigItemDelegate;
 class EndpointConfigModel;
 class QDataWidgetMapper;
 class QItemSelection;
@@ -35,6 +36,7 @@ private:
 private:
     Ui::EndpointConfigEditDlg* ui;
     QDataWidgetMapper* mapper_;
+    EndpointConfigItemDelegate* itemDelegate_;
 
     Q_DISABLE_COPY_MOVE(EndpointConfigEditDlg)
 };
