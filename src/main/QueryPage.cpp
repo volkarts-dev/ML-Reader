@@ -87,7 +87,7 @@ void QueryPage::execute(bool sureness)
 
     auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
     mlClientQueryPatientData(mlClient, ui->patientDataForm->extractFormData(), sureness,
-                             this, &QueryPage::onPatientDataQueried, &QueryPage::onPatientDataQueringFailed);
+                             this, &QueryPage::onPatientDataQueringDone);
 }
 
 void QueryPage::changeEvent(QEvent* event)
@@ -149,95 +149,91 @@ void QueryPage::onCreateAnywayBtnClicked()
     execute(true);
 }
 
-void QueryPage::onPatientDataQueringFailed(const QString& error)
+void QueryPage::onPatientDataQueringDone(const MlClient::Error& error, const MlClient::QueryResult& result)
 {
-    setEnabled(true);
-
-    mainInterface_->showStatusMessage(tr("Failed to query Patient data"), 2000);
-
-    QMessageBox::warning(
-                this,
-                tr("Error"),
-                tr("Error while quering patient data: %1").arg(error),
-                QMessageBox::Ok,
-                QMessageBox::Ok);
-
-    deleteSenderMlClient(sender());
-}
-
-void QueryPage::onPatientDataQueried(const MlClient::QueryResult& result)
-{
-    setEnabled(true);
-
-    mainInterface_->showStatusMessage(tr("Patient data queried"), 1000);
-
-    if (!result.pid.isNull())
+    if (error)
     {
-        ui->patientPid->setText(result.pid);
+        QMessageBox::warning(
+                    this,
+                    tr("Error"),
+                    tr("Error while quering patient data: %1").arg(error.message),
+                    QMessageBox::Ok,
+                    QMessageBox::Ok);
 
-        ui->queryResultPane->setVisible(true);
-        ui->possibleMatchesPane->setVisible(false);
+        mainInterface_->showStatusMessage(tr("Failed to query Patient data"), 5000);
     }
     else
     {
-        ui->possibleMatches->setEnabled(false);
+        if (!result.pid.isNull())
+        {
+            ui->patientPid->setText(result.pid);
 
-        ui->queryResultPane->setVisible(false);
-        ui->possibleMatchesPane->setVisible(true);
+            ui->queryResultPane->setVisible(true);
+            ui->possibleMatchesPane->setVisible(false);
+        }
+        else
+        {
+            ui->possibleMatches->setEnabled(false);
 
-        auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
-        mlClientLoadPatientData(mlClient, result.possibleMatchPids, ui->endpointSelector->currentFieldList(),
-                                 this, &QueryPage::onPatientDataLoaded, &QueryPage::onPatientDataLoadingFailed);
+            ui->queryResultPane->setVisible(false);
+            ui->possibleMatchesPane->setVisible(true);
+
+            auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
+            mlClientLoadPatientData(mlClient, result.possibleMatchPids, ui->endpointSelector->currentFieldList(),
+                                     this, &QueryPage::onPatientDataLoadingDone);
+        }
+
+        mainInterface_->showStatusMessage(tr("Patient data queried"), 1000);
     }
 
+    setEnabled(true);
     updateUiState();
-
     deleteSenderMlClient(sender());
 }
 
-void QueryPage::onPatientDataLoadingFailed(const QString& error)
+void QueryPage::onPatientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& patientData)
 {
-    mainInterface_->showStatusMessage(tr("Failed to load possible matches"), 2000);
-
-    QMessageBox::warning(
-                this,
-                tr("Error"),
-                tr("Error while loading possible matches: %1").arg(error),
-                QMessageBox::Ok,
-                QMessageBox::Ok);
-
-    deleteSenderMlClient(sender());
-}
-
-void QueryPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
-{
-    const auto fieldNames = ui->endpointSelector->currentFieldList();
-
-    QList<QStringList> possibleMatchesModelData;
-
-    QStringList modelHeaderRow;
-    for (const auto& field : fieldNames)
+    if (error)
     {
-        modelHeaderRow << field;
+        QMessageBox::warning(
+                    this,
+                    tr("Error"),
+                    tr("Error while loading possible matches: %1").arg(error.message),
+                    QMessageBox::Ok,
+                    QMessageBox::Ok);
+
+        mainInterface_->showStatusMessage(tr("Failed to load possible matches"), 5000);
     }
-    possibleMatchesModelData << modelHeaderRow;
-
-    for (const auto& patientRecord : patientData)
+    else
     {
-        QStringList modelPatientRecord;
+        const auto fieldNames = ui->endpointSelector->currentFieldList();
+
+        QList<QStringList> possibleMatchesModelData;
+
+        QStringList modelHeaderRow;
         for (const auto& field : fieldNames)
         {
-            modelPatientRecord << patientRecord[field];
+            modelHeaderRow << field;
         }
-        possibleMatchesModelData << modelPatientRecord;
+        possibleMatchesModelData << modelHeaderRow;
+
+        for (const auto& patientRecord : patientData)
+        {
+            QStringList modelPatientRecord;
+            for (const auto& field : fieldNames)
+            {
+                modelPatientRecord << patientRecord[field];
+            }
+            possibleMatchesModelData << modelPatientRecord;
+        }
+
+        possibleMatchesModel_->setFirstRowHeader(true);
+        possibleMatchesModel_->setModelData(possibleMatchesModelData, false);
+
+        ui->possibleMatches->setEnabled(true);
+
+        mainInterface_->showStatusMessage(tr("Possible matches loaded"), 1000);
     }
-
-    possibleMatchesModel_->setFirstRowHeader(true);
-    possibleMatchesModel_->setModelData(possibleMatchesModelData, false);
-
-    ui->possibleMatches->setEnabled(true);
-
-    mainInterface_->showStatusMessage(tr("Possible matches loaded"), 1000);
 
     deleteSenderMlClient(sender());
 }

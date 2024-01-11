@@ -31,7 +31,7 @@ public:
     }
 
 signals:
-    void finishedError(const QString& error);
+    void finished(const MlClient::Error& error, const QVariant& data);
 
 private:
     void createSession()
@@ -52,8 +52,9 @@ private:
                                                 "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
                                                 messageFromServer << "\n<<<";
 
-                emit finishedError(statusCode != 404 ?
-                            messageFromServer : tr("Mainzelliste not found on server. Check the BaseURL."));
+                const MlClient::Error err{statusCode != 404 ?
+                                messageFromServer : tr("Mainzelliste not found on server. Check the BaseURL.")};
+                emit finished(err, {});
                 return;
             }
 
@@ -86,7 +87,8 @@ private:
                                                 "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
                                                 messageFromServer << "\n<<<";
 
-                emit finishedError(messageFromServer);
+                const MlClient::Error err{messageFromServer};
+                emit finished(err, {});
                 return;
             }
 
@@ -156,7 +158,7 @@ private:
     QString tokenId_{};
 };
 
-// ********************************************************
+// *********************************************************************************************************************
 
 class LoadPatientDataConversation : public MlConversation
 {
@@ -196,7 +198,7 @@ public:
                                                 "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
                                                 messageFromServer << "\n<<<";
 
-                emit finishedError(messageFromServer);
+                emit finished(messageFromServer, {});
                 return;
             }
 
@@ -204,16 +206,13 @@ public:
 
             auto patientData = parseResponse(responseObject);
 
-            emit patientDataLoaded(patientData);
+            emit finished({}, QVariant::fromValue(patientData));
 
             deleteSession();
 
             response->deleteLater();
         });
     }
-
-signals:
-    void patientDataLoaded(const MlClient::PatientData& data);
 
 private:
     MlClient::PatientData parseResponse(const QJsonArray& json)
@@ -257,7 +256,7 @@ private:
     QStringList fields_;
 };
 
-// ********************************************************
+// *********************************************************************************************************************
 
 class QueryPatientDataConversation : public MlConversation
 {
@@ -299,7 +298,7 @@ public:
                                                 "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
                                                 messageFromServer << "\n<<<";
 
-                emit finishedError(messageFromServer);
+                emit finished(messageFromServer, {});
                 return;
             }
 
@@ -315,16 +314,13 @@ public:
                 parseConflictResponse(queryResult, returnValue.object());
             }
 
-            emit patientDataQueried(queryResult);
+            emit finished({}, QVariant::fromValue(queryResult));
 
             deleteSession();
 
             response->deleteLater();
         });
     }
-
-signals:
-    void patientDataQueried(const MlClient::QueryResult& data);
 
 private:
     void parseResponse(MlClient::QueryResult& queryResult, const QJsonArray& json)
@@ -366,7 +362,7 @@ private:
     QHash<QString, QString> patientData_;
 };
 
-// ********************************************************
+// *********************************************************************************************************************
 
 class EditPatientDataConversation : public MlConversation
 {
@@ -406,11 +402,11 @@ public:
                                                 "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
                                                 messageFromServer << "\n<<<";
 
-                emit finishedError(messageFromServer);
+                emit finished(messageFromServer, {});
                 return;
             }
 
-            emit patientDataEdited();
+            emit finished({}, {});
 
             deleteSession();
 
@@ -418,23 +414,20 @@ public:
         });
     }
 
-signals:
-    void patientDataEdited();
-
 private:
     QVersionNumber apiVersion_;
     QString pid_;
     QHash<QString, QString> patientData_;
 };
 
-// ********************************************************
+// *********************************************************************************************************************
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "MlClient.moc"
 #pragma GCC diagnostic pop
 
-// ********************************************************
+// *********************************************************************************************************************
 
 const QString MlClient::ID_TYPE = QStringLiteral("pid");
 
@@ -450,11 +443,11 @@ MlClient::MlClient(QString baseUrl, QVersionNumber apiVersion, QString apiKey, Q
 void MlClient::loadPatientData(const QStringList& pids, const QStringList& fields)
 {
     auto conversation = new LoadPatientDataConversation(apiVersion_, pids, fields, this, this);
-    connect(conversation, &LoadPatientDataConversation::finishedError, this, [this] (const QString& error) {
-        emit patientDataLoadingFailed(error);
-    });
-    connect(conversation, &LoadPatientDataConversation::patientDataLoaded, this, [this] (const PatientData& data) {
-        emit patientDataLoaded(data);
+    connect(conversation, &LoadPatientDataConversation::finished,
+            this, [this](const Error& error, const QVariant& data) {
+        Q_ASSERT(data.isNull() || data.canConvert<PatientData>());
+        emit patientDataLoadingDone(error, data.value<PatientData>());
+        sender()->deleteLater();
     });
     conversation->start();
 }
@@ -462,11 +455,11 @@ void MlClient::loadPatientData(const QStringList& pids, const QStringList& field
 void MlClient::queryPatientData(const QHash<QString, QString>& patientData, bool sureness)
 {
     auto conversation = new QueryPatientDataConversation(apiVersion_, patientData, sureness, this, this);
-    connect(conversation, &QueryPatientDataConversation::finishedError, this, [this] (const QString& error) {
-        emit patientDataQueringFailed(error);
-    });
-    connect(conversation, &QueryPatientDataConversation::patientDataQueried, this, [this] (const QueryResult& data) {
-        emit patientDataQueried(data);
+    connect(conversation, &QueryPatientDataConversation::finished,
+            this, [this](const Error& error, const QVariant& data) {
+        Q_ASSERT(data.isNull() || data.canConvert<QueryResult>());
+        emit patientDataQueringDone(error, data.value<QueryResult>());
+        sender()->deleteLater();
     });
     conversation->start();
 }
@@ -474,11 +467,11 @@ void MlClient::queryPatientData(const QHash<QString, QString>& patientData, bool
 void MlClient::editPatientData(const QString& pid, const QHash<QString, QString>& patientData)
 {
     auto conversation = new EditPatientDataConversation(apiVersion_, pid, patientData, this, this);
-    connect(conversation, &EditPatientDataConversation::finishedError, this, [this] (const QString& error) {
-        emit patientDataEditingFailed(error);
-    });
-    connect(conversation, &EditPatientDataConversation::patientDataEdited, this, [this] () {
-        emit patientDataEdited();
+    connect(conversation, &EditPatientDataConversation::finished,
+            this, [this](const Error& error, const QVariant& data) {
+        Q_UNUSED(data);
+        emit patientDataEditingDone(error);
+        sender()->deleteLater();
     });
     conversation->start();
 }

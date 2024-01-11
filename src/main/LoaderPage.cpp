@@ -109,7 +109,7 @@ void LoaderPage::onInputLoadingDone(bool result)
     if (result)
         mainInterface_->showStatusMessage(tr("PID file loaded successful"), 1000);
     else
-        mainInterface_->showStatusMessage(tr("Failed to load PID file"), 2000);
+        mainInterface_->showStatusMessage(tr("Failed to load PID file"), 5000);
 
     outputData_->setModelData({}, false);
 
@@ -123,7 +123,7 @@ void LoaderPage::onOutputSavingDone(bool result)
     if (result)
         mainInterface_->showStatusMessage(tr("Patient data file saved successful"), 1000);
     else
-        mainInterface_->showStatusMessage(tr("Failed to save patient data file"), 2000);
+        mainInterface_->showStatusMessage(tr("Failed to save patient data file"), 5000);
 }
 
 void LoaderPage::onInputDataChanged()
@@ -166,39 +166,35 @@ void LoaderPage::onPidColumSelectorChanged(int index)
     updateUiState();
 }
 
-void LoaderPage::onPatientDataLoadingFailed(const QString& error)
-{
-    setEnabled(true);
-
-    mainInterface_->showStatusMessage(tr("Failed to load Patient data"), 2000);
-
-    QMessageBox::warning(
-                this,
-                tr("Error"),
-                tr("Error while loading patient data: %1").arg(error),
-                QMessageBox::Ok,
-                QMessageBox::Ok);
-
-    deleteSenderMlClient(sender());
-}
-
-void LoaderPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
+void LoaderPage::onPatientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& patientData)
 {
     qCDebug(MLR_LOG_CAT) << "Loader Execution: Fetching took" << executionTimer_.elapsed() << "ms";
     executionTimer_.restart();
 
+    if (error)
+    {
+        QMessageBox::warning(
+                    this,
+                    tr("Error"),
+                    tr("Error while loading patient data: %1").arg(error.message),
+                    QMessageBox::Ok,
+                    QMessageBox::Ok);
+
+        mainInterface_->showStatusMessage(tr("Failed to load Patient data"), 5000);
+    }
+    else
+    {
+        mergePatientData(patientData);
+
+        qCDebug(MLR_LOG_CAT) << "Loader Execution: Merging took" << executionTimer_.elapsed() << "ms";
+        executionTimer_.restart();
+        qCDebug(MLR_LOG_CAT) << "Loader Execution: Stopped";
+
+        mainInterface_->showStatusMessage(tr("Patient data loaded"), 1000);
+    }
+
     setEnabled(true);
-
-    mergePatientData(patientData);
-
-    mainInterface_->showStatusMessage(tr("Patient data loaded"), 1000);
-
-    qCDebug(MLR_LOG_CAT) << "Loader Execution: Merging took" << executionTimer_.elapsed() << "ms";
-    executionTimer_.restart();
-    qCDebug(MLR_LOG_CAT) << "Loader Execution: Stopped";
-
     updateUiState();
-
     deleteSenderMlClient(sender());
 }
 
@@ -221,10 +217,7 @@ void LoaderPage::onExecuteButtonClicked()
     executionTimer_.restart();
 
     auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
-    mlClientLoadPatientData(mlClient, makePidList(), fieldList,
-                             this, &LoaderPage::onPatientDataLoaded, &LoaderPage::onPatientDataLoadingFailed);
-
-    mlClient->loadPatientData(makePidList(), fieldList);
+    mlClientLoadPatientData(mlClient, makePidList(), fieldList, this, &LoaderPage::onPatientDataLoadingDone);
 }
 
 void LoaderPage::onLoadButtonClicked()

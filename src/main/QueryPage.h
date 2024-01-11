@@ -38,10 +38,8 @@ private slots:
     void onEditPatientBtnClicked();
     void onCopyPidBtnClicked();
     void onCreateAnywayBtnClicked();
-    void onPatientDataQueringFailed(const QString& error);
-    void onPatientDataQueried(const MlClient::QueryResult& result);
-    void onPatientDataLoadingFailed(const QString& error);
-    void onPatientDataLoaded(const MlClient::PatientData& patientData);
+    void onPatientDataQueringDone(const MlClient::Error& error, const MlClient::QueryResult& result);
+    void onPatientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& patientData);
     void onPossibleMatchesDoubleClicked(const QModelIndex& index);
 
 private:

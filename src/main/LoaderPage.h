@@ -44,8 +44,7 @@ private slots:
     void onInputDataChanged();
     void onSelectedEndpointChanged(int index);
     void onPidColumSelectorChanged(int index);
-    void onPatientDataLoadingFailed(const QString& error);
-    void onPatientDataLoaded(const MlClient::PatientData& patientData);
+    void onPatientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& patientData);
 
 private:
     void setup();

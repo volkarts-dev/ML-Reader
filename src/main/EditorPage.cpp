@@ -111,7 +111,7 @@ void EditorPage::startEditing()
 
     auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
     mlClientLoadPatientData(mlClient, pidList, ui->endpointSelector->currentFieldList(),
-                            this, &EditorPage::onPatientDataLoaded, &EditorPage::onPatientDataLoadingFailed);
+                            this, &EditorPage::onPatientDataLoadingDone);
 }
 
 void EditorPage::onSelectedEndpointChanged(int index)
@@ -148,7 +148,7 @@ void EditorPage::onSaveBtnClicked()
 
     auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
     mlClientEditPatientData(mlClient, loadedPatientPid_, ui->patientDataForm->extractFormData(DynamicForm::Filter::Modified),
-                            this, &EditorPage::onPatientDataEdited, &EditorPage::onPatientDataEditingFailed);
+                            this, &EditorPage::onPatientDataEditingDone);
 }
 
 void EditorPage::onAbortBtnClicked()
@@ -157,61 +157,51 @@ void EditorPage::onAbortBtnClicked()
     updateUiState();
 }
 
-void EditorPage::onPatientDataLoadingFailed(const QString& error)
+void EditorPage::onPatientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& patientData)
 {
+    if (error)
+    {
+        QMessageBox::warning(
+                    this,
+                    tr("Error"),
+                    tr("Error while loading patient data: %1").arg(error.message),
+                    QMessageBox::Ok,
+                    QMessageBox::Ok);
+
+        mainInterface_->showStatusMessage(tr("Failed to load patient data"), 5000);
+    }
+    else
+    {
+        ui->patientDataForm->fillFormData(patientData[0]);
+        loadedPatientPid_ = ui->searchPid->text();
+
+        mainInterface_->showStatusMessage(tr("Patient data loaded"), 1000);
+    }
+
     setEnabled(true);
-
-    mainInterface_->showStatusMessage(tr("Failed to load patient data"), 2000);
-
-    QMessageBox::warning(
-                this,
-                tr("Error"),
-                tr("Error while loading patient data: %1").arg(error),
-                QMessageBox::Ok,
-                QMessageBox::Ok);
-
     updateUiState();
-
     deleteSenderMlClient(sender());
 }
 
-void EditorPage::onPatientDataLoaded(const MlClient::PatientData& patientData)
+void EditorPage::onPatientDataEditingDone(const MlClient::Error& error)
 {
+    if (error)
+    {
+        QMessageBox::warning(
+                    this,
+                    tr("Error"),
+                    tr("Error while edit patient data: %1").arg(error.message),
+                    QMessageBox::Ok,
+                    QMessageBox::Ok);
+
+        mainInterface_->showStatusMessage(tr("Failed to edit patient data"), 5000);
+    }
+    else
+    {
+        mainInterface_->showStatusMessage(tr("Patient data edited"), 1000);
+    }
+
     setEnabled(true);
-
-    ui->patientDataForm->fillFormData(patientData[0]);
-
-    mainInterface_->showStatusMessage(tr("Patient data loaded"), 1000);
-
-    loadedPatientPid_ = ui->searchPid->text();
     updateUiState();
-
-    deleteSenderMlClient(sender());
-}
-
-void EditorPage::onPatientDataEditingFailed(const QString& error)
-{
-    setEnabled(true);
-
-    mainInterface_->showStatusMessage(tr("Failed to edit patient data"), 2000);
-
-    QMessageBox::warning(
-                this,
-                tr("Error"),
-                tr("Error while edit patient data: %1").arg(error),
-                QMessageBox::Ok,
-                QMessageBox::Ok);
-
-    updateUiState();
-
-    deleteSenderMlClient(sender());
-}
-
-void EditorPage::onPatientDataEdited()
-{
-    setEnabled(true);
-
-    mainInterface_->showStatusMessage(tr("Patient data edited"), 1000);
-
     deleteSenderMlClient(sender());
 }

@@ -19,7 +19,7 @@ DynamicForm::Field::Field(QString name, QString caption) :
 {
 }
 
-// ********************************************************
+// *********************************************************************************************************************
 
 DynamicForm::DynamicForm(QWidget* parent) :
     QWidget{parent},

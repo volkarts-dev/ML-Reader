@@ -39,10 +39,8 @@ private slots:
     void onLoadIDataBtnClicked();
     void onSaveBtnClicked();
     void onAbortBtnClicked();
-    void onPatientDataLoadingFailed(const QString& error);
-    void onPatientDataLoaded(const MlClient::PatientData& patientData);
-    void onPatientDataEditingFailed(const QString& error);
-    void onPatientDataEdited();
+    void onPatientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& patientData);
+    void onPatientDataEditingDone(const MlClient::Error& error);
 
 private:
     void setup();

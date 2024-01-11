@@ -17,6 +17,14 @@ class MlClient : public QObject, public HttpUserDelegate
     Q_OBJECT
 
 public:
+    struct Error
+    {
+        QString message{};
+        Error() = default;
+        Error(QString m) : message{std::move(m)} {}
+        operator bool() const { return !message.isEmpty(); }
+    };
+
     struct QueryResult
     {
         QString pid{};
@@ -39,14 +47,9 @@ public:
     bool askRecoverableError(const QString& title, const QString& message) override;
 
 signals:
-    void patientDataLoadingFailed(const QString& error);
-    void patientDataLoaded(const MlClient::PatientData& data);
-
-    void patientDataQueringFailed(const QString& error);
-    void patientDataQueried(const MlClient::QueryResult& result);
-
-    void patientDataEditingFailed(const QString& error);
-    void patientDataEdited();
+    void patientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& data);
+    void patientDataQueringDone(const MlClient::Error& error, const MlClient::QueryResult& result);
+    void patientDataEditingDone(const MlClient::Error& error);
 
 private:
     HttpRequest createRequest(HttpRequest::Method method, const QString& path,
@@ -63,4 +66,6 @@ private:
     friend MlConversation;
 };
 
+Q_DECLARE_METATYPE(MlClient::Error)
 Q_DECLARE_METATYPE(MlClient::QueryResult)
+Q_DECLARE_METATYPE(MlClient::PatientData)
