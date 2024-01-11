@@ -69,6 +69,11 @@ void QueryPage::saveWidgetState()
     s.setValue("Window/QueryPage/Splitter", ui->splitter->saveState());
 }
 
+void QueryPage::handleEndpointConfigChanged()
+{
+    reloadDynamicForm(ui->endpointSelector->selectedEndpoint());
+}
+
 void QueryPage::setSelectedEndpoint(int index)
 {
     ui->endpointSelector->setSelectedEndpoint(index);
@@ -90,6 +95,25 @@ void QueryPage::execute(bool sureness)
                              this, &QueryPage::onPatientDataQueringDone);
 }
 
+void QueryPage::reloadDynamicForm(int endpointIndex)
+{
+    QList<DynamicForm::Field> dynamicFields;
+
+    if (endpointIndex != -1)
+    {
+        const auto model = app()->endpointConfigModel();
+        const auto modelIndex = model->index(endpointIndex, toInt(EndpointConfig::Field::Fields));
+        const auto fields = model->data(modelIndex, Qt::DisplayRole).toStringList();
+
+        for (const auto& field : fields)
+        {
+            dynamicFields << DynamicForm::Field{field};
+        }
+    }
+
+    ui->patientDataForm->reset(dynamicFields);
+}
+
 void QueryPage::changeEvent(QEvent* event)
 {
     QWidget::changeEvent(event);
@@ -107,21 +131,7 @@ void QueryPage::changeEvent(QEvent* event)
 
 void QueryPage::onSelectedEndpointChanged(int index)
 {
-    QList<DynamicForm::Field> dynamicFields;
-
-    if (index != -1)
-    {
-        const auto model = app()->endpointConfigModel();
-        const auto modelIndex = model->index(index, toInt(EndpointConfig::Field::Fields));
-        const auto fields = model->data(modelIndex, Qt::DisplayRole).toStringList();
-
-        for (const auto& field : fields)
-        {
-            dynamicFields << DynamicForm::Field{field};
-        }
-    }
-
-    ui->patientDataForm->reset(dynamicFields);
+    reloadDynamicForm(index);
 
     updateUiState();
 

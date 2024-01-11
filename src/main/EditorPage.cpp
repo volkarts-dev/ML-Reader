@@ -92,6 +92,11 @@ void EditorPage::startEditing(const QString& pid)
     startEditing();
 }
 
+void EditorPage::handleEndpointConfigChanged()
+{
+    reloadDynamicForm(ui->endpointSelector->selectedEndpoint());
+}
+
 void EditorPage::setSelectedEndpoint(int index)
 {
     ui->endpointSelector->setSelectedEndpoint(index);
@@ -114,14 +119,14 @@ void EditorPage::startEditing()
                             this, &EditorPage::onPatientDataLoadingDone);
 }
 
-void EditorPage::onSelectedEndpointChanged(int index)
+void EditorPage::reloadDynamicForm(int endpointIndex)
 {
     QList<DynamicForm::Field> dynamicFields;
 
-    if (index != -1)
+    if (endpointIndex != -1)
     {
         const auto model = app()->endpointConfigModel();
-        const auto modelIndex = model->index(index, toInt(EndpointConfig::Field::Fields));
+        const auto modelIndex = model->index(endpointIndex, toInt(EndpointConfig::Field::Fields));
         const auto fields = model->data(modelIndex, Qt::DisplayRole).toStringList();
 
         for (const auto& field : fields)
@@ -131,6 +136,11 @@ void EditorPage::onSelectedEndpointChanged(int index)
     }
 
     ui->patientDataForm->reset(dynamicFields);
+}
+
+void EditorPage::onSelectedEndpointChanged(int index)
+{
+    reloadDynamicForm(index);
 
     updateUiState();
 

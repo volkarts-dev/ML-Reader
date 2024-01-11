@@ -24,6 +24,7 @@ public:
     void setMainInterface(MainInterface* mainInterface) { mainInterface_ = mainInterface; }
 
 public slots:
+    void handleEndpointConfigChanged();
     void setSelectedEndpoint(int index);
 
 signals:
@@ -48,6 +49,7 @@ private:
     void saveWidgetState();
     void updateUiState();
     void execute(bool sureness);
+    void reloadDynamicForm(int endpointIndex);
 
 private:
     Ui::QueryPage* ui;

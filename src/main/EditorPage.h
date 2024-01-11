@@ -26,6 +26,7 @@ public:
     void startEditing(const QString& pid);
 
 public slots:
+    void handleEndpointConfigChanged();
     void setSelectedEndpoint(int index);
 
 signals:
@@ -48,6 +49,7 @@ private:
     void saveWidgetState();
     void updateUiState();
     void startEditing();
+    void reloadDynamicForm(int endpointIndex);
 
 private:
     Ui::EditorPage* ui;

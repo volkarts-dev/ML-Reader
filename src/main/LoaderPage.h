@@ -26,6 +26,7 @@ public:
     void setMainInterface(MainInterface* mainInterface) { mainInterface_ = mainInterface; }
 
 public slots:
+    void handleEndpointConfigChanged();
     void setSelectedEndpoint(int index);
 
 signals:
@@ -56,6 +57,7 @@ private:
     QStringList makePidList();
     QStringList makeFieldList();
     void mergePatientData(const MlClient::PatientData& patientData);
+    void reloadFieldList(int endpointIndex);
 
 private:
     Ui::LoaderPage* ui;

@@ -83,6 +83,11 @@ void LoaderPage::saveWidgetState()
     s.setValue("Window/LoaderPage/Splitter", ui->splitter->saveState());
 }
 
+void LoaderPage::handleEndpointConfigChanged()
+{
+    reloadFieldList(ui->endpointSelector->selectedEndpoint());
+}
+
 void LoaderPage::setSelectedEndpoint(int index)
 {
     ui->endpointSelector->setSelectedEndpoint(index);
@@ -144,17 +149,7 @@ void LoaderPage::onInputDataChanged()
 
 void LoaderPage::onSelectedEndpointChanged(int index)
 {
-    if (index == -1)
-    {
-        ui->fields->setItems({});
-        return;
-    }
-
-    const auto model = app()->endpointConfigModel();
-    const auto modelIndex = model->index(index, toInt(EndpointConfig::Field::Fields));
-    ui->fields->setItems(model->data(modelIndex, Qt::DisplayRole).toStringList());
-
-    ui->fields->selectAll();
+    reloadFieldList(index);
 
     emit selectedEndpointChanged(index);
 }
@@ -388,4 +383,19 @@ void LoaderPage::mergePatientData(const MlClient::PatientData& patientData)
 
     outputData_->setFirstRowHeader(true);
     outputData_->setModelData(modelData, false);
+}
+
+void LoaderPage::reloadFieldList(int endpointIndex)
+{
+    if (endpointIndex == -1)
+    {
+        ui->fields->setItems({});
+        return;
+    }
+
+    const auto model = app()->endpointConfigModel();
+    const auto modelIndex = model->index(endpointIndex, toInt(EndpointConfig::Field::Fields));
+    ui->fields->setItems(model->data(modelIndex, Qt::DisplayRole).toStringList());
+
+    ui->fields->selectAll();
 }

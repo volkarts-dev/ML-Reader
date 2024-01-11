@@ -123,6 +123,10 @@ void MainWindow::onActionEndpointConfigEdit()
 {
     EndpointConfigEditDlg dlg{this};
     dlg.exec();
+
+    ui->loaderPage->handleEndpointConfigChanged();
+    ui->queryPage->handleEndpointConfigChanged();
+    ui->editorPage->handleEndpointConfigChanged();
 }
 
 void MainWindow::onActionQuitTriggerd()
