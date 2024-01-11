@@ -41,8 +41,11 @@ MainWindow::~MainWindow()
 bool MainWindow::setup()
 {
     ui->loaderPage->setMainInterface(this);
+    connect(ui->loaderPage, &LoaderPage::selectedEndpointChanged, this, &MainWindow::onSelectedEnpointChanged);
     ui->queryPage->setMainInterface(this);
+    connect(ui->queryPage, &QueryPage::selectedEndpointChanged, this, &MainWindow::onSelectedEnpointChanged);
     ui->editorPage->setMainInterface(this);
+    connect(ui->editorPage, &EditorPage::selectedEndpointChanged, this, &MainWindow::onSelectedEnpointChanged);
 
     ui->functionStack->setTabIcon(toInt(Page::Loader), QIcon::fromTheme("download"));
     ui->functionStack->setTabIcon(toInt(Page::Query), QIcon::fromTheme("system-search"));
@@ -150,4 +153,11 @@ void MainWindow::onFunctionStackCurrentChanged(int index)
     ui->actionShowLoaderPage->setChecked(index == toInt(Page::Loader));
     ui->actionShowQueryPage->setChecked(index == toInt(Page::Query));
     ui->actionShowEditorPage->setChecked(index == toInt(Page::Editor));
+}
+
+void MainWindow::onSelectedEnpointChanged(int index)
+{
+    ui->loaderPage->setSelectedEndpoint(index);
+    ui->queryPage->setSelectedEndpoint(index);
+    ui->editorPage->setSelectedEndpoint(index);
 }

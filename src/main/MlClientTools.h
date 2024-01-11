@@ -1,5 +1,5 @@
 // Copyright 2023, Daniel Volk <mail@volkarts.com>
-// SPDX-License-Identifier: <LICENSE>
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -21,14 +21,14 @@ inline void mlClientLoadPatientData(MlClient* mlClient, const QStringList& pidLi
 }
 
 template<typename SuccessFunc, typename FailedFunc>
-inline void mlClientQueryPatientData(MlClient* mlClient, const QHash<QString, QString>& patientData,
+inline void mlClientQueryPatientData(MlClient* mlClient, const QHash<QString, QString>& patientData, bool sureness,
                                  const typename QtPrivate::FunctionPointer<SuccessFunc>::Object* target,
                                  SuccessFunc successFunc, FailedFunc failedFunc)
 {
     QObject::connect(mlClient, &MlClient::patientDataQueried, target, successFunc);
     QObject::connect(mlClient, &MlClient::patientDataQueringFailed, target, failedFunc);
 
-    mlClient->queryPatientData(patientData);
+    mlClient->queryPatientData(patientData, sureness);
 }
 
 template<typename SuccessFunc, typename FailedFunc>

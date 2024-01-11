@@ -1,5 +1,5 @@
 // Copyright 2023, Daniel Volk <mail@volkarts.com>
-// SPDX-License-Identifier: <LICENSE>
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "QueryPage.h"
 #include "ui_QueryPage.h"
@@ -38,11 +38,13 @@ void QueryPage::setup()
 
     ui->possibleMatches->setModel(possibleMatchesModel_);
 
-    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &QueryPage::onSelectedEnpointChanged);
+    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &QueryPage::onSelectedEndpointChanged);
 
     connect(ui->executeBtn, &QAbstractButton::clicked, this, &QueryPage::onExecuteButtonClicked);
     connect(ui->editPatientBtn, &QAbstractButton::clicked, this, &QueryPage::onEditPatientBtnClicked);
     connect(ui->copyPidBtn, &QAbstractButton::clicked, this, &QueryPage::onCopyPidBtnClicked);
+
+    connect(ui->createAnywayBtn, &QAbstractButton::clicked, this, &QueryPage::onCreateAnywayBtnClicked);
 
     connect(ui->possibleMatches, &QTableView::doubleClicked, this, &QueryPage::onPossibleMatchesDoubleClicked);
 
@@ -67,11 +69,25 @@ void QueryPage::saveWidgetState()
     s.setValue("Window/QueryPage/Splitter", ui->splitter->saveState());
 }
 
+void QueryPage::setSelectedEndpoint(int index)
+{
+    ui->endpointSelector->setSelectedEndpoint(index);
+}
+
 void QueryPage::updateUiState()
 {
     bool endpointSelected = ui->endpointSelector->selectedEndpoint() != -1;
 
     ui->executeBtn->setEnabled(endpointSelected);
+}
+
+void QueryPage::execute(bool sureness)
+{
+    setEnabled(false);
+
+    auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
+    mlClientQueryPatientData(mlClient, ui->patientDataForm->extractFormData(), sureness,
+                             this, &QueryPage::onPatientDataQueried, &QueryPage::onPatientDataQueringFailed);
 }
 
 void QueryPage::changeEvent(QEvent* event)
@@ -89,7 +105,7 @@ void QueryPage::changeEvent(QEvent* event)
     }
 }
 
-void QueryPage::onSelectedEnpointChanged(int index)
+void QueryPage::onSelectedEndpointChanged(int index)
 {
     QList<DynamicForm::Field> dynamicFields;
 
@@ -108,15 +124,13 @@ void QueryPage::onSelectedEnpointChanged(int index)
     ui->patientDataForm->reset(dynamicFields);
 
     updateUiState();
+
+    emit selectedEndpointChanged(index);
 }
 
 void QueryPage::onExecuteButtonClicked()
 {
-    setEnabled(false);
-
-    auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
-    mlClientQueryPatientData(mlClient, ui->patientDataForm->extractFormData(),
-                             this, &QueryPage::onPatientDataQueried, &QueryPage::onPatientDataQueringFailed);
+    execute(false);
 }
 
 void QueryPage::onEditPatientBtnClicked()
@@ -128,6 +142,11 @@ void QueryPage::onCopyPidBtnClicked()
 {
     QGuiApplication::clipboard()->setText(ui->patientPid->text());
     mainInterface_->showStatusMessage(tr("Copied PID to Clipboard"), 1000);
+}
+
+void QueryPage::onCreateAnywayBtnClicked()
+{
+    execute(true);
 }
 
 void QueryPage::onPatientDataQueringFailed(const QString& error)

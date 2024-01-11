@@ -264,12 +264,14 @@ class QueryPatientDataConversation : public MlConversation
     Q_OBJECT
 
 public:
-    QueryPatientDataConversation(QVersionNumber apiVersion, QHash<QString, QString> patientData,
+    QueryPatientDataConversation(QVersionNumber apiVersion, QHash<QString, QString> patientData, bool sureness,
                                  MlClient* mlClient, QObject* parent = {}) :
         MlConversation{mlClient, parent},
         apiVersion_{std::move(apiVersion)},
         patientData_{std::move(patientData)}
     {
+        if (sureness)
+            patientData_.insert("sureness"_l1, "true"_l1);
     }
 
     QJsonObject createTokenObject() override
@@ -457,9 +459,9 @@ void MlClient::loadPatientData(const QStringList& pids, const QStringList& field
     conversation->start();
 }
 
-void MlClient::queryPatientData(const QHash<QString, QString>& patientData)
+void MlClient::queryPatientData(const QHash<QString, QString>& patientData, bool sureness)
 {
-    auto conversation = new QueryPatientDataConversation(apiVersion_, patientData, this, this);
+    auto conversation = new QueryPatientDataConversation(apiVersion_, patientData, sureness, this, this);
     connect(conversation, &QueryPatientDataConversation::finishedError, this, [this] (const QString& error) {
         emit patientDataQueringFailed(error);
     });

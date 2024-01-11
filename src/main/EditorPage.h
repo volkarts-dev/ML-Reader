@@ -1,5 +1,5 @@
 // Copyright 2023, Daniel Volk <mail@volkarts.com>
-// SPDX-License-Identifier: <LICENSE>
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -25,11 +25,17 @@ public:
 
     void startEditing(const QString& pid);
 
+public slots:
+    void setSelectedEndpoint(int index);
+
+signals:
+    void selectedEndpointChanged(int index);
+
 protected:
     void changeEvent(QEvent* event) override;
 
 private slots:
-    void onSelectedEnpointChanged(int index);
+    void onSelectedEndpointChanged(int index);
     void onLoadIDataBtnClicked();
     void onSaveBtnClicked();
     void onAbortBtnClicked();

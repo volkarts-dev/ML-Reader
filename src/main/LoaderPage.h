@@ -25,6 +25,12 @@ public:
 
     void setMainInterface(MainInterface* mainInterface) { mainInterface_ = mainInterface; }
 
+public slots:
+    void setSelectedEndpoint(int index);
+
+signals:
+    void selectedEndpointChanged(int index);
+
 signals:
     void inputLoadingDone(bool result);
     void outputSavingDone(bool result);
@@ -36,7 +42,7 @@ private slots:
     void onInputLoadingDone(bool result);
     void onOutputSavingDone(bool result);
     void onInputDataChanged();
-    void onSelectedEnpointChanged(int index);
+    void onSelectedEndpointChanged(int index);
     void onPidColumSelectorChanged(int index);
     void onPatientDataLoadingFailed(const QString& error);
     void onPatientDataLoaded(const MlClient::PatientData& patientData);

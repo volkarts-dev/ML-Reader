@@ -1,5 +1,5 @@
 // Copyright 2023, Daniel Volk <mail@volkarts.com>
-// SPDX-License-Identifier: <LICENSE>
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "EditorPage.h"
 #include "ui_EditorPage.h"
@@ -32,7 +32,7 @@ void EditorPage::setup()
 {
     ui->abortBtn->setIcon(QIcon::fromTheme(QLatin1String("dialog-cancel")));
 
-    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &EditorPage::onSelectedEnpointChanged);
+    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &EditorPage::onSelectedEndpointChanged);
 
     connect(ui->loadIDataBtn, &QAbstractButton::clicked, this, &EditorPage::onLoadIDataBtnClicked);
     connect(ui->saveBtn, &QAbstractButton::clicked, this, &EditorPage::onSaveBtnClicked);
@@ -92,6 +92,11 @@ void EditorPage::startEditing(const QString& pid)
     startEditing();
 }
 
+void EditorPage::setSelectedEndpoint(int index)
+{
+    ui->endpointSelector->setSelectedEndpoint(index);
+}
+
 void EditorPage::startEditing()
 {
     const auto pid = ui->searchPid->text();
@@ -109,7 +114,7 @@ void EditorPage::startEditing()
                             this, &EditorPage::onPatientDataLoaded, &EditorPage::onPatientDataLoadingFailed);
 }
 
-void EditorPage::onSelectedEnpointChanged(int index)
+void EditorPage::onSelectedEndpointChanged(int index)
 {
     QList<DynamicForm::Field> dynamicFields;
 
@@ -128,6 +133,8 @@ void EditorPage::onSelectedEnpointChanged(int index)
     ui->patientDataForm->reset(dynamicFields);
 
     updateUiState();
+
+    emit selectedEndpointChanged(index);
 }
 
 void EditorPage::onLoadIDataBtnClicked()

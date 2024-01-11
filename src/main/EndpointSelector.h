@@ -1,5 +1,5 @@
 // Copyright 2023, Daniel Volk <mail@volkarts.com>
-// SPDX-License-Identifier: <LICENSE>
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -32,7 +32,8 @@ protected:
 
 private slots:
     void onEndpointSelectorChanged(int index);
-    void onPasswordLoaded(bool result, const QUuid& uuid, const QString& password);
+    void onPasswordLoaded(bool result, const QUuid& uuid, const QString& password, void* context);
+    void onPasswordSaved(bool result, const QUuid& uuid, void* context);
     void onApiKeyChanged();
     void onSaveApiKeyChanged(int state);
 

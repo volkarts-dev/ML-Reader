@@ -33,7 +33,7 @@ public:
     MlClient(QString baseUrl, QVersionNumber apiVersion, QString apiKey, QObject* parent = {});
 
     void loadPatientData(const QStringList& pids, const QStringList& fields);
-    void queryPatientData(const QHash<QString, QString>& patientData);
+    void queryPatientData(const QHash<QString, QString>& patientData, bool sureness);
     void editPatientData(const QString& pid, const QHash<QString, QString>& patientData);
 
     bool askRecoverableError(const QString& title, const QString& message) override;

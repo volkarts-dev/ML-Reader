@@ -56,7 +56,7 @@ void LoaderPage::setup()
 
     connect(inputData_, &DataModel::modelReset, this, &LoaderPage::onInputDataChanged);
 
-    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &LoaderPage::onSelectedEnpointChanged);
+    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &LoaderPage::onSelectedEndpointChanged);
 
     connect(ui->pidColumnSelector, qOverload<int>(&QComboBox::currentIndexChanged), this, &LoaderPage::onPidColumSelectorChanged);
 
@@ -81,6 +81,11 @@ void LoaderPage::saveWidgetState()
 
     s.setValue("Window/LoaderPage/SelectedEndpoint", ui->endpointSelector->selectedEndpoint());
     s.setValue("Window/LoaderPage/Splitter", ui->splitter->saveState());
+}
+
+void LoaderPage::setSelectedEndpoint(int index)
+{
+    ui->endpointSelector->setSelectedEndpoint(index);
 }
 
 void LoaderPage::updateUiState()
@@ -137,7 +142,7 @@ void LoaderPage::onInputDataChanged()
     ui->pidColumnSelector->setCurrentIndex(inputData_->detectedPidColumn());
 }
 
-void LoaderPage::onSelectedEnpointChanged(int index)
+void LoaderPage::onSelectedEndpointChanged(int index)
 {
     if (index == -1)
     {
@@ -150,6 +155,8 @@ void LoaderPage::onSelectedEnpointChanged(int index)
     ui->fields->setItems(model->data(modelIndex, Qt::DisplayRole).toStringList());
 
     ui->fields->selectAll();
+
+    emit selectedEndpointChanged(index);
 }
 
 void LoaderPage::onPidColumSelectorChanged(int index)

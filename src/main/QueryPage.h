@@ -1,5 +1,5 @@
 // Copyright 2023, Daniel Volk <mail@volkarts.com>
-// SPDX-License-Identifier: <LICENSE>
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -23,14 +23,21 @@ public:
 
     void setMainInterface(MainInterface* mainInterface) { mainInterface_ = mainInterface; }
 
+public slots:
+    void setSelectedEndpoint(int index);
+
+signals:
+    void selectedEndpointChanged(int index);
+
 protected:
     void changeEvent(QEvent* event) override;
 
 private slots:
-    void onSelectedEnpointChanged(int index);
+    void onSelectedEndpointChanged(int index);
     void onExecuteButtonClicked();
     void onEditPatientBtnClicked();
     void onCopyPidBtnClicked();
+    void onCreateAnywayBtnClicked();
     void onPatientDataQueringFailed(const QString& error);
     void onPatientDataQueried(const MlClient::QueryResult& result);
     void onPatientDataLoadingFailed(const QString& error);
@@ -42,6 +49,7 @@ private:
     void loadWidgetState();
     void saveWidgetState();
     void updateUiState();
+    void execute(bool sureness);
 
 private:
     Ui::QueryPage* ui;
