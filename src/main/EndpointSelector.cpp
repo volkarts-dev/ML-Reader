@@ -49,7 +49,7 @@ QUuid EndpointSelector::currentEndpointUuid()
     return uuidData.toUuid();
 }
 
-int EndpointSelector::selectedEndpoint()
+int EndpointSelector::selectedEndpoint() const
 {
     return ui->endpointSelector->currentIndex();
 }
@@ -110,7 +110,7 @@ void EndpointSelector::onEndpointSelectorChanged(int index)
         app()->passwordStore()->loadPassword(currentEndpointUuid(), this);
 
 
-    emit selectedEnpointChanged(index);
+    emit selectedEndpointChanged(index);
 }
 
 void EndpointSelector::onPasswordLoaded(bool result, const QUuid& uuid, const QString& password, void* context)

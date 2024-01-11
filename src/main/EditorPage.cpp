@@ -32,7 +32,7 @@ void EditorPage::setup()
 {
     ui->abortBtn->setIcon(QIcon::fromTheme(QLatin1String("dialog-cancel")));
 
-    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &EditorPage::onSelectedEndpointChanged);
+    connect(ui->endpointSelector, &EndpointSelector::selectedEndpointChanged, this, &EditorPage::onSelectedEndpointChanged);
 
     connect(ui->loadIDataBtn, &QAbstractButton::clicked, this, &EditorPage::onLoadIDataBtnClicked);
     connect(ui->saveBtn, &QAbstractButton::clicked, this, &EditorPage::onSaveBtnClicked);

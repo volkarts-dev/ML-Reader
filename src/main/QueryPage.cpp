@@ -38,7 +38,7 @@ void QueryPage::setup()
 
     ui->possibleMatches->setModel(possibleMatchesModel_);
 
-    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &QueryPage::onSelectedEndpointChanged);
+    connect(ui->endpointSelector, &EndpointSelector::selectedEndpointChanged, this, &QueryPage::onSelectedEndpointChanged);
 
     connect(ui->executeBtn, &QAbstractButton::clicked, this, &QueryPage::onExecuteButtonClicked);
     connect(ui->editPatientBtn, &QAbstractButton::clicked, this, &QueryPage::onEditPatientBtnClicked);

@@ -56,7 +56,7 @@ void LoaderPage::setup()
 
     connect(inputData_, &DataModel::modelReset, this, &LoaderPage::onInputDataChanged);
 
-    connect(ui->endpointSelector, &EndpointSelector::selectedEnpointChanged, this, &LoaderPage::onSelectedEndpointChanged);
+    connect(ui->endpointSelector, &EndpointSelector::selectedEndpointChanged, this, &LoaderPage::onSelectedEndpointChanged);
 
     connect(ui->pidColumnSelector, qOverload<int>(&QComboBox::currentIndexChanged), this, &LoaderPage::onPidColumSelectorChanged);
 

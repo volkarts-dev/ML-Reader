@@ -33,7 +33,7 @@ private slots:
     void onShowQueryPageTriggered();
     void onShowEditPageTriggered();
     void onFunctionStackCurrentChanged(int index);
-    void onSelectedEnpointChanged(int index);
+    void onSelectedEndpointChanged(int index);
 
 private:
     bool setup();
