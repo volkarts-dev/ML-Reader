@@ -52,12 +52,11 @@ add_executable(
 
 configure_mocs(mlreader)
 
-target_link_libraries(
-    mlreader
-    PRIVATE project_config
-            mlclient
-            Qt5Keychain::Qt5Keychain
-            qtcsv::qtcsv
-            Qt5::Core
-            Qt5::Widgets
+target_link_libraries(mlreader PRIVATE
+    project_config
+    mlclient
+    qtkeychain::qt5keychain
+    qtcsv::qtcsv
+    Qt5::Core
+    Qt5::Widgets
 )
