@@ -60,3 +60,10 @@ target_link_libraries(mlreader PRIVATE
     Qt5::Core
     Qt5::Widgets
 )
+
+if(WIN32)
+    target_link_libraries(mlreader PRIVATE
+        ${OPENSSL_INSTALL_DIR}/lib/libcrypto.lib
+        ${OPENSSL_INSTALL_DIR}/lib/libssl.lib
+    )
+endif()
