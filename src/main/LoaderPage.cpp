@@ -53,6 +53,7 @@ void LoaderPage::setup()
 
     connect(inputData_, &DataModel::firstRowHeaderChanged, ui->firstRowIsHeader, &QCheckBox::setChecked);
     connect(ui->firstRowIsHeader, &QCheckBox::stateChanged, inputData_, &DataModel::setFirstRowHeader);
+    ui->firstRowIsHeader->setChecked(inputData_->firstRowHeader());
 
     connect(inputData_, &DataModel::modelReset, this, &LoaderPage::onInputDataChanged);
 
