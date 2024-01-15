@@ -25,6 +25,9 @@ void EndpointConfig::load(const QSettings& s)
     data_[toInt(Field::ApiVersion)] = s.value(QStringLiteral("ApiVersion")).toString();
     data_[toInt(Field::Fields)] = s.value(QStringLiteral("Fields")).value<QStringList>();
 
+    if (data_[toInt(Field::ApiVersion)].toString().isEmpty())
+        data_[toInt(Field::ApiVersion)] = QStringLiteral("2.2");
+
     auto saveApiKey = s.value(QStringLiteral("SaveApiKey"));
     if (!saveApiKey.isValid())
         saveApiKey.setValue(true);
