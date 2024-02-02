@@ -25,7 +25,7 @@ signals:
 
 private slots:
     void onSelectionChanged(const QItemSelection& selected, const QItemSelection& unselected);
-    void onCustomContextMenuRequested(const QPoint& point);
+    void onCustomContextMenuRequested(const QPoint& position);
     void onActionAddItemTriggered();
     void onActionRemoveItemTriggered();
 

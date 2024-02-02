@@ -70,14 +70,14 @@ void ListWidgetInput::onSelectionChanged(const QItemSelection& selected, const Q
     actionRemoveItem_->setEnabled(!selected.isEmpty());
 }
 
-void ListWidgetInput::onCustomContextMenuRequested(const QPoint& point)
+void ListWidgetInput::onCustomContextMenuRequested(const QPoint& position)
 {
     if (editable_)
     {
         QMenu ctxMenu;
         ctxMenu.addAction(actionAddItem_);
         ctxMenu.addAction(actionRemoveItem_);
-        ctxMenu.exec(mapToGlobal(point));
+        ctxMenu.exec(viewport()->mapToGlobal(position));
     }
 }
 
