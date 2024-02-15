@@ -15,6 +15,7 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QSettings>
+#include <QMenu>
 
 QueryPage::QueryPage(QWidget *parent) :
     QWidget{parent},
@@ -39,6 +40,7 @@ void QueryPage::initialize(MainWindow* mainWindow)
     ui->possibleMatchesPane->setVisible(false);
 
     ui->possibleMatches->setModel(possibleMatchesModel_);
+    ui->possibleMatches->setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(mainWindow_, &MainWindow::endpointConfigChanged, this, &QueryPage::onEndpointConfigChanged);
     connect(mainWindow_, &MainWindow::selectedEndpointChanged, this, &QueryPage::onSelectedEndpointChanged);
@@ -50,6 +52,8 @@ void QueryPage::initialize(MainWindow* mainWindow)
     connect(ui->createAnywayBtn, &QAbstractButton::clicked, this, &QueryPage::onCreateAnywayBtnClicked);
 
     connect(ui->possibleMatches, &QTableView::doubleClicked, this, &QueryPage::onPossibleMatchesDoubleClicked);
+
+    connect(ui->possibleMatches, &QTableView::customContextMenuRequested, this, &QueryPage::onCustomMenuRequested);
 
     loadWidgetState();
 }
@@ -152,6 +156,32 @@ void QueryPage::onCreateAnywayBtnClicked()
     execute(true);
 }
 
+void QueryPage::onCustomMenuRequested(const QPoint& position)
+{
+    const auto index = ui->possibleMatches->indexAt(position);
+    if (!index.isValid())
+        return;
+
+    QMenu ctxMenu;
+
+    QAction copyItemAction{QIcon::fromTheme(QStringLiteral("edit-copy")), tr("&Copy value")};
+    connect(&copyItemAction, &QAction::triggered, this, [index]() {
+        auto* clipboard = QGuiApplication::clipboard();
+        clipboard->setText(index.data().toString());
+    });
+    ctxMenu.addAction(&copyItemAction);
+
+    QAction copyRowAction{QIcon::fromTheme(QStringLiteral("edit-copy")), tr("&Copy entire row")};
+    connect(&copyRowAction, &QAction::triggered, this, [index, model=possibleMatchesModel_]() {
+        auto* clipboard = QGuiApplication::clipboard();
+        const auto rowData = model->modelData()[index.row()].join(QLatin1Char(';'));
+        clipboard->setText(rowData);
+    });
+    ctxMenu.addAction(&copyRowAction);
+
+    ctxMenu.exec(ui->possibleMatches->viewport()->mapToGlobal(position));
+}
+
 void QueryPage::onPatientDataQueringDone(const MlClient::Error& error, const MlClient::QueryResult& result)
 {
     if (error)
@@ -216,6 +246,7 @@ void QueryPage::onPatientDataLoadingDone(const MlClient::Error& error, const MlC
         QList<QStringList> possibleMatchesModelData;
 
         QStringList modelHeaderRow;
+        modelHeaderRow << MlClient::ID_TYPE;
         for (const auto& field : fieldNames)
         {
             modelHeaderRow << field;
@@ -225,6 +256,7 @@ void QueryPage::onPatientDataLoadingDone(const MlClient::Error& error, const MlC
         for (const auto& patientRecord : patientData)
         {
             QStringList modelPatientRecord;
+            modelPatientRecord << patientRecord[MlClient::ID_TYPE];
             for (const auto& field : fieldNames)
             {
                 modelPatientRecord << patientRecord[field];

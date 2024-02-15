@@ -51,12 +51,18 @@ add_executable(
 
 configure_mocs(mlreader)
 
-target_link_libraries(
-    mlreader
-    PRIVATE project_config
-            mlclient
-            Qt5Keychain::Qt5Keychain
-            qtcsv::qtcsv
-            Qt5::Core
-            Qt5::Widgets
+target_link_libraries(mlreader PRIVATE
+    project_config
+    mlclient
+    qtkeychain::qt5keychain
+    qtcsv::qtcsv
+    Qt5::Core
+    Qt5::Widgets
 )
+
+if(WIN32)
+    target_link_libraries(mlreader PRIVATE
+        ${OPENSSL_INSTALL_DIR}/lib/libcrypto.lib
+        ${OPENSSL_INSTALL_DIR}/lib/libssl.lib
+    )
+endif()

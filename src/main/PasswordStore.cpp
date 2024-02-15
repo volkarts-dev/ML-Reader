@@ -7,7 +7,7 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <QDebug>
-#include <qt5keychain/keychain.h>
+#include <keychain.h>
 
 namespace {
 
