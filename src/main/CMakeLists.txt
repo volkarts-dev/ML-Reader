@@ -35,7 +35,6 @@ add_executable(
     Main.cpp
     Main.qrc
     Main.rc
-    MainInterface.h
     MainWindow.cpp
     MainWindow.h
     MainWindow.ui

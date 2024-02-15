@@ -7,7 +7,8 @@
 #include "Application.h"
 #include "EndpointConfig.h"
 #include "EndpointConfigModel.h"
-#include "MainInterface.h"
+#include "EndpointSelector.h"
+#include "MainWindow.h"
 #include "MlClientTools.h"
 #include "Tools.h"
 #include <QMessageBox>
@@ -18,7 +19,6 @@ EditorPage::EditorPage(QWidget *parent) :
     ui{new Ui::EditorPage{}}
 {
     ui->setupUi(this);
-    setup();
 }
 
 EditorPage::~EditorPage()
@@ -28,11 +28,14 @@ EditorPage::~EditorPage()
     delete ui;
 }
 
-void EditorPage::setup()
+void EditorPage::initialize(MainWindow* mainWindow)
 {
+    mainWindow_ = mainWindow;
+
     ui->abortBtn->setIcon(QIcon::fromTheme(QLatin1String("dialog-cancel")));
 
-    connect(ui->endpointSelector, &EndpointSelector::selectedEndpointChanged, this, &EditorPage::onSelectedEndpointChanged);
+    connect(mainWindow_, &MainWindow::endpointConfigChanged, this, &EditorPage::onEndpointConfigChanged);
+    connect(mainWindow_, &MainWindow::selectedEndpointChanged, this, &EditorPage::onSelectedEndpointChanged);
 
     connect(ui->loadIDataBtn, &QAbstractButton::clicked, this, &EditorPage::onLoadIDataBtnClicked);
     connect(ui->saveBtn, &QAbstractButton::clicked, this, &EditorPage::onSaveBtnClicked);
@@ -45,23 +48,17 @@ void EditorPage::setup()
 
 void EditorPage::loadWidgetState()
 {
-    QSettings s;
-
-    ui->endpointSelector->setSelectedEndpoint(
-                indexClamp(s.value("Window/EditPage/SelectedEndpoint").toInt(),
-                           app()->endpointConfigModel()->rowCount() - 1));
+    //QSettings s;
 }
 
 void EditorPage::saveWidgetState()
 {
-    QSettings s;
-
-    s.setValue("Window/EditPage/SelectedEndpoint", ui->endpointSelector->selectedEndpoint());
+    //QSettings s;
 }
 
 void EditorPage::updateUiState()
 {
-    bool endpointSelected = ui->endpointSelector->selectedEndpoint() != -1;
+    bool endpointSelected = mainWindow_->endpointSelector()->selectedEndpoint() != -1;
     bool dataLoaded = !loadedPatientPid_.isEmpty();
 
     ui->searchPid->setEnabled(endpointSelected && !dataLoaded);
@@ -92,16 +89,6 @@ void EditorPage::startEditing(const QString& pid)
     startEditing();
 }
 
-void EditorPage::handleEndpointConfigChanged()
-{
-    reloadDynamicForm(ui->endpointSelector->selectedEndpoint());
-}
-
-void EditorPage::setSelectedEndpoint(int index)
-{
-    ui->endpointSelector->setSelectedEndpoint(index);
-}
-
 void EditorPage::startEditing()
 {
     const auto pid = ui->searchPid->text();
@@ -114,8 +101,9 @@ void EditorPage::startEditing()
 
     QStringList pidList{pid};
 
-    auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
-    mlClientLoadPatientData(mlClient, pidList, ui->endpointSelector->currentFieldList(),
+    auto mlClient = createMlClient(mainWindow_->endpointSelector()->selectedEndpoint(),
+                                   mainWindow_->endpointSelector()->currentApiKey());
+    mlClientLoadPatientData(mlClient, pidList, mainWindow_->endpointSelector()->currentFieldList(),
                             this, &EditorPage::onPatientDataLoadingDone);
 }
 
@@ -138,15 +126,6 @@ void EditorPage::reloadDynamicForm(int endpointIndex)
     ui->patientDataForm->reset(dynamicFields);
 }
 
-void EditorPage::onSelectedEndpointChanged(int index)
-{
-    reloadDynamicForm(index);
-
-    updateUiState();
-
-    emit selectedEndpointChanged(index);
-}
-
 void EditorPage::onLoadIDataBtnClicked()
 {
     startEditing();
@@ -156,8 +135,10 @@ void EditorPage::onSaveBtnClicked()
 {
     Q_ASSERT(!loadedPatientPid_.isEmpty());
 
-    auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
-    mlClientEditPatientData(mlClient, loadedPatientPid_, ui->patientDataForm->extractFormData(DynamicForm::Filter::Modified),
+    auto mlClient = createMlClient(mainWindow_->endpointSelector()->selectedEndpoint(),
+                                   mainWindow_->endpointSelector()->currentApiKey());
+    mlClientEditPatientData(mlClient, loadedPatientPid_,
+                            ui->patientDataForm->extractFormData(DynamicForm::Filter::Modified),
                             this, &EditorPage::onPatientDataEditingDone);
 }
 
@@ -178,14 +159,14 @@ void EditorPage::onPatientDataLoadingDone(const MlClient::Error& error, const Ml
                     QMessageBox::Ok,
                     QMessageBox::Ok);
 
-        mainInterface_->showStatusMessage(tr("Failed to load patient data"), 5000);
+        mainWindow_->showStatusMessage(tr("Failed to load patient data"), 5000);
     }
     else
     {
         ui->patientDataForm->fillFormData(patientData[0]);
         loadedPatientPid_ = ui->searchPid->text();
 
-        mainInterface_->showStatusMessage(tr("Patient data loaded"), 1000);
+        mainWindow_->showStatusMessage(tr("Patient data loaded"), 1000);
     }
 
     setEnabled(true);
@@ -204,14 +185,26 @@ void EditorPage::onPatientDataEditingDone(const MlClient::Error& error)
                     QMessageBox::Ok,
                     QMessageBox::Ok);
 
-        mainInterface_->showStatusMessage(tr("Failed to edit patient data"), 5000);
+        mainWindow_->showStatusMessage(tr("Failed to edit patient data"), 5000);
     }
     else
     {
-        mainInterface_->showStatusMessage(tr("Patient data edited"), 1000);
+        mainWindow_->showStatusMessage(tr("Patient data edited"), 1000);
     }
 
     setEnabled(true);
     updateUiState();
     deleteSenderMlClient(sender());
+}
+
+void EditorPage::onEndpointConfigChanged()
+{
+    reloadDynamicForm(mainWindow_->endpointSelector()->selectedEndpoint());
+}
+
+void EditorPage::onSelectedEndpointChanged(int index)
+{
+    reloadDynamicForm(index);
+
+    updateUiState();
 }

@@ -55,7 +55,7 @@ bool Application::initialize()
     passwordStore_.reset(new PasswordStore{});
 
     mainWindow_.reset(new MainWindow());
-    mainWindow_->setVisible(true);
+    mainWindow_->initialize();
 
     return true;
 }

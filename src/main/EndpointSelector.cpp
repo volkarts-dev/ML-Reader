@@ -54,11 +54,6 @@ int EndpointSelector::selectedEndpoint() const
     return ui->endpointSelector->currentIndex();
 }
 
-void EndpointSelector::setSelectedEndpoint(int index)
-{
-    ui->endpointSelector->setCurrentIndex(index);
-}
-
 QString EndpointSelector::currentApiKey() const
 {
     return ui->apiKey->text();
@@ -66,12 +61,26 @@ QString EndpointSelector::currentApiKey() const
 
 QStringList EndpointSelector::currentFieldList() const
 {
-    auto index = ui->endpointSelector->currentIndex();
+    const auto index = ui->endpointSelector->currentIndex();
     if (index == -1)
         return {};
     auto model = app()->endpointConfigModel();
     auto fieldsData = model->data(model->index(index, toInt(EndpointConfig::Field::Fields)), Qt::DisplayRole);
     return fieldsData.toStringList();
+}
+
+void EndpointSelector::onEndpointConfigChanged()
+{
+    const auto index = ui->endpointSelector->currentIndex();
+    if (index == -1)
+        return;
+
+    onEndpointSelectorChanged(index);
+}
+
+void EndpointSelector::setSelectedEndpoint(int index)
+{
+    ui->endpointSelector->setCurrentIndex(index);
 }
 
 void EndpointSelector::changeEvent(QEvent* event)

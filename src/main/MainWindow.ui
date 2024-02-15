@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>ML-Reader</string>
   </property>
   <property name="windowIcon">
    <iconset resource="Main.qrc">
@@ -20,12 +20,24 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="QFrame" name="frame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="EndpointSelector" name="endpointSelector" native="true"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <widget class="QTabWidget" name="functionStack">
       <property name="currentIndex">
        <number>0</number>
-      </property>
-      <property name="documentMode">
-       <bool>true</bool>
       </property>
       <widget class="LoaderPage" name="loaderPage">
        <attribute name="title">
@@ -52,10 +64,10 @@
      <x>0</x>
      <y>0</y>
      <width>965</width>
-     <height>30</height>
+     <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_File">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
     </property>
@@ -63,7 +75,7 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menuF_unction">
+   <widget class="QMenu" name="menuFunction">
     <property name="title">
      <string>F&amp;unction</string>
     </property>
@@ -71,8 +83,8 @@
     <addaction name="actionShowQueryPage"/>
     <addaction name="actionShowEditorPage"/>
    </widget>
-   <addaction name="menu_File"/>
-   <addaction name="menuF_unction"/>
+   <addaction name="menuFile"/>
+   <addaction name="menuFunction"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionEndpointConfigEdit">
@@ -157,6 +169,12 @@
    <class>EditorPage</class>
    <extends>QWidget</extends>
    <header>EditorPage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>EndpointSelector</class>
+   <extends>QWidget</extends>
+   <header>EndpointSelector.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -4,7 +4,9 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include "Application.h"
 #include "EndpointConfigEditDlg.h"
+#include "EndpointConfigModel.h"
 #include "Tools.h"
 #include <QDebug>
 #include <QFile>
@@ -28,7 +30,6 @@ MainWindow::MainWindow(QWidget* parent) :
     ui{new Ui::MainWindow{}}
 {
     ui->setupUi(this);
-    setup();
 }
 
 MainWindow::~MainWindow()
@@ -38,14 +39,20 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::setup()
+EndpointSelector* MainWindow::endpointSelector() const
 {
-    ui->loaderPage->setMainInterface(this);
-    connect(ui->loaderPage, &LoaderPage::selectedEndpointChanged, this, &MainWindow::onSelectedEndpointChanged);
-    ui->queryPage->setMainInterface(this);
-    connect(ui->queryPage, &QueryPage::selectedEndpointChanged, this, &MainWindow::onSelectedEndpointChanged);
-    ui->editorPage->setMainInterface(this);
-    connect(ui->editorPage, &EditorPage::selectedEndpointChanged, this, &MainWindow::onSelectedEndpointChanged);
+    return ui->endpointSelector;
+}
+
+bool MainWindow::initialize()
+{
+    ui->loaderPage->initialize(this);
+    ui->queryPage->initialize(this);
+    ui->editorPage->initialize(this);
+
+    connect(ui->endpointSelector, &EndpointSelector::selectedEndpointChanged,
+            this, &MainWindow::onSelectedEndpointChanged);
+    connect(this, &MainWindow::endpointConfigChanged, ui->endpointSelector, &EndpointSelector::onEndpointConfigChanged);
 
     ui->functionStack->setTabIcon(toInt(Page::Loader), QIcon::fromTheme("download"));
     ui->functionStack->setTabIcon(toInt(Page::Query), QIcon::fromTheme("system-search"));
@@ -105,6 +112,10 @@ void MainWindow::loadMainWindowState()
     restoreGeometry(s.value("Window/Geometry").toByteArray());
     restoreState(s.value("Window/State").toByteArray());
 
+    ui->endpointSelector->setSelectedEndpoint(
+                indexClamp(s.value("Window/SelectedEndpoint").toInt(),
+                           app()->endpointConfigModel()->rowCount() - 1));
+
     int functionIndex = indexClamp(s.value("Window/FunctionPage").toInt(), ui->functionStack->count() - 1, 0);
     ui->functionStack->setCurrentIndex(functionIndex);
     onFunctionStackCurrentChanged(functionIndex);
@@ -116,6 +127,7 @@ void MainWindow::saveMainWindowState()
 
     s.setValue("Window/Geometry", saveGeometry());
     s.setValue("Window/State", saveState());
+    s.setValue("Window/SelectedEndpoint", ui->endpointSelector->selectedEndpoint());
     s.setValue("Window/FunctionPage", ui->functionStack->currentIndex());
 }
 
@@ -124,9 +136,8 @@ void MainWindow::onActionEndpointConfigEdit()
     EndpointConfigEditDlg dlg{this};
     dlg.exec();
 
-    ui->loaderPage->handleEndpointConfigChanged();
-    ui->queryPage->handleEndpointConfigChanged();
-    ui->editorPage->handleEndpointConfigChanged();
+
+    emit endpointConfigChanged();
 }
 
 void MainWindow::onActionQuitTriggerd()
@@ -161,7 +172,5 @@ void MainWindow::onFunctionStackCurrentChanged(int index)
 
 void MainWindow::onSelectedEndpointChanged(int index)
 {
-    ui->loaderPage->setSelectedEndpoint(index);
-    ui->queryPage->setSelectedEndpoint(index);
-    ui->editorPage->setSelectedEndpoint(index);
+    emit selectedEndpointChanged(index);
 }

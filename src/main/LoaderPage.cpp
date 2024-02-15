@@ -9,7 +9,8 @@
 #include "CsvReader.h"
 #include "DataModel.h"
 #include "EndpointConfigModel.h"
-#include "MainInterface.h"
+#include "EndpointSelector.h"
+#include "MainWindow.h"
 #include "MlClientTools.h"
 #include "Tools.h"
 #include <QDebug>
@@ -26,7 +27,6 @@ LoaderPage::LoaderPage(QWidget* parent) :
     outputData_{new DataModel{this}}
 {
     ui->setupUi(this);
-    setup();
 }
 
 LoaderPage::~LoaderPage()
@@ -36,13 +36,18 @@ LoaderPage::~LoaderPage()
     delete ui;
 }
 
-void LoaderPage::setup()
+void LoaderPage::initialize(MainWindow* mainWindow)
 {
+    mainWindow_ = mainWindow;
+
     ui->inputTable->setModel(inputData_);
     ui->outputTable->setModel(outputData_);
 
     int lineHeight = ui->inputTable->fontMetrics().lineSpacing() + 5;
     ui->inputTable->verticalHeader()->setDefaultSectionSize(lineHeight); // ???
+
+    connect(mainWindow_, &MainWindow::endpointConfigChanged, this, &LoaderPage::onEndpointConfigChanged);
+    connect(mainWindow_, &MainWindow::selectedEndpointChanged, this, &LoaderPage::onSelectedEndpointChanged);
 
     connect(ui->executeBtn, &QAbstractButton::clicked, this, &LoaderPage::onExecuteButtonClicked);
     connect(ui->loadBtn, &QAbstractButton::clicked, this, &LoaderPage::onLoadButtonClicked);
@@ -56,9 +61,8 @@ void LoaderPage::setup()
 
     connect(inputData_, &DataModel::modelReset, this, &LoaderPage::onInputDataChanged);
 
-    connect(ui->endpointSelector, &EndpointSelector::selectedEndpointChanged, this, &LoaderPage::onSelectedEndpointChanged);
-
-    connect(ui->pidColumnSelector, qOverload<int>(&QComboBox::currentIndexChanged), this, &LoaderPage::onPidColumSelectorChanged);
+    connect(ui->pidColumnSelector, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &LoaderPage::onPidColumSelectorChanged);
 
     updateUiState();
 
@@ -69,9 +73,6 @@ void LoaderPage::loadWidgetState()
 {
     QSettings s;
 
-    ui->endpointSelector->setSelectedEndpoint(
-                indexClamp(s.value("Window/LoaderPage/SelectedEndpoint").toInt(),
-                           app()->endpointConfigModel()->rowCount() - 1));
     ui->splitter->restoreState(s.value("Window/LoaderPage/Splitter").toByteArray());
 }
 
@@ -79,18 +80,7 @@ void LoaderPage::saveWidgetState()
 {
     QSettings s;
 
-    s.setValue("Window/LoaderPage/SelectedEndpoint", ui->endpointSelector->selectedEndpoint());
     s.setValue("Window/LoaderPage/Splitter", ui->splitter->saveState());
-}
-
-void LoaderPage::handleEndpointConfigChanged()
-{
-    reloadFieldList(ui->endpointSelector->selectedEndpoint());
-}
-
-void LoaderPage::setSelectedEndpoint(int index)
-{
-    ui->endpointSelector->setSelectedEndpoint(index);
 }
 
 void LoaderPage::updateUiState()
@@ -109,12 +99,12 @@ void LoaderPage::updateUiState()
 
 void LoaderPage::onInputLoadingDone(bool result)
 {
-    Q_ASSERT(mainInterface_);
+    Q_ASSERT(mainWindow_);
 
     if (result)
-        mainInterface_->showStatusMessage(tr("PID file loaded successful"), 1000);
+        mainWindow_->showStatusMessage(tr("PID file loaded successful"), 1000);
     else
-        mainInterface_->showStatusMessage(tr("Failed to load PID file"), 5000);
+        mainWindow_->showStatusMessage(tr("Failed to load PID file"), 5000);
 
     outputData_->setModelData({}, false);
 
@@ -123,12 +113,12 @@ void LoaderPage::onInputLoadingDone(bool result)
 
 void LoaderPage::onOutputSavingDone(bool result)
 {
-    Q_ASSERT(mainInterface_);
+    Q_ASSERT(mainWindow_);
 
     if (result)
-        mainInterface_->showStatusMessage(tr("Patient data file saved successful"), 1000);
+        mainWindow_->showStatusMessage(tr("Patient data file saved successful"), 1000);
     else
-        mainInterface_->showStatusMessage(tr("Failed to save patient data file"), 5000);
+        mainWindow_->showStatusMessage(tr("Failed to save patient data file"), 5000);
 }
 
 void LoaderPage::onInputDataChanged()
@@ -145,13 +135,6 @@ void LoaderPage::onInputDataChanged()
     }
     ui->pidColumnSelector->addItems(columnNames);
     ui->pidColumnSelector->setCurrentIndex(inputData_->detectedPidColumn());
-}
-
-void LoaderPage::onSelectedEndpointChanged(int index)
-{
-    reloadFieldList(index);
-
-    emit selectedEndpointChanged(index);
 }
 
 void LoaderPage::onPidColumSelectorChanged(int index)
@@ -175,7 +158,7 @@ void LoaderPage::onPatientDataLoadingDone(const MlClient::Error& error, const Ml
                     QMessageBox::Ok,
                     QMessageBox::Ok);
 
-        mainInterface_->showStatusMessage(tr("Failed to load Patient data"), 5000);
+        mainWindow_->showStatusMessage(tr("Failed to load Patient data"), 5000);
     }
     else
     {
@@ -185,7 +168,7 @@ void LoaderPage::onPatientDataLoadingDone(const MlClient::Error& error, const Ml
         executionTimer_.restart();
         qCDebug(MLR_LOG_CAT) << "Loader Execution: Stopped";
 
-        mainInterface_->showStatusMessage(tr("Patient data loaded"), 1000);
+        mainWindow_->showStatusMessage(tr("Patient data loaded"), 1000);
     }
 
     setEnabled(true);
@@ -201,17 +184,18 @@ void LoaderPage::onExecuteButtonClicked()
     auto fieldList = makeFieldList();
     if (fieldList.isEmpty())
     {
-        mainInterface_->showStatusMessage(tr("No fields selected"), 1000);
+        mainWindow_->showStatusMessage(tr("No fields selected"), 1000);
         return;
     }
 
     setEnabled(false);
-    mainInterface_->showStatusMessage(tr("Loading patient data ..."));
+    mainWindow_->showStatusMessage(tr("Loading patient data ..."));
 
     qCDebug(MLR_LOG_CAT) << "Loader Execution: Setup took" << executionTimer_.elapsed() << "ms";
     executionTimer_.restart();
 
-    auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
+    auto mlClient = createMlClient(mainWindow_->endpointSelector()->selectedEndpoint(),
+                                   mainWindow_->endpointSelector()->currentApiKey());
     mlClientLoadPatientData(mlClient, makePidList(), fieldList, this, &LoaderPage::onPatientDataLoadingDone);
 }
 
@@ -255,10 +239,20 @@ void LoaderPage::onSaveButtonClicked()
     writeOutput(fileName);
 }
 
+void LoaderPage::onEndpointConfigChanged()
+{
+    reloadFieldList(mainWindow_->endpointSelector()->selectedEndpoint());
+}
+
+void LoaderPage::onSelectedEndpointChanged(int index)
+{
+    reloadFieldList(index);
+}
+
 void LoaderPage::readInput(const QString &fileName)
 {
-    Q_ASSERT(mainInterface_);
-    mainInterface_->showStatusMessage(tr("Loading PID file ..."));
+    Q_ASSERT(mainWindow_);
+    mainWindow_->showStatusMessage(tr("Loading PID file ..."));
 
     app()->runJob([this, fileName]()
     {
@@ -277,8 +271,8 @@ void LoaderPage::readInput(const QString &fileName)
 
 void LoaderPage::writeOutput(const QString &fileName)
 {
-    Q_ASSERT(mainInterface_);
-    mainInterface_->showStatusMessage(tr("Saving patient data file ..."));
+    Q_ASSERT(mainWindow_);
+    mainWindow_->showStatusMessage(tr("Saving patient data file ..."));
 
     app()->runJob([this, fileName]()
     {

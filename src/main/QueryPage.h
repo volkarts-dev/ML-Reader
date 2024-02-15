@@ -7,7 +7,7 @@
 #include <QWidget>
 
 class DataModel;
-class MainInterface;
+class MainWindow;
 
 namespace Ui {
 class QueryPage;
@@ -21,20 +21,12 @@ public:
     explicit QueryPage(QWidget* parent = {});
     ~QueryPage() override;
 
-    void setMainInterface(MainInterface* mainInterface) { mainInterface_ = mainInterface; }
-
-public slots:
-    void handleEndpointConfigChanged();
-    void setSelectedEndpoint(int index);
-
-signals:
-    void selectedEndpointChanged(int index);
+    void initialize(MainWindow* mainWindow);
 
 protected:
     void changeEvent(QEvent* event) override;
 
 private slots:
-    void onSelectedEndpointChanged(int index);
     void onExecuteButtonClicked();
     void onEditPatientBtnClicked();
     void onCopyPidBtnClicked();
@@ -42,9 +34,10 @@ private slots:
     void onPatientDataQueringDone(const MlClient::Error& error, const MlClient::QueryResult& result);
     void onPatientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& patientData);
     void onPossibleMatchesDoubleClicked(const QModelIndex& index);
+    void onEndpointConfigChanged();
+    void onSelectedEndpointChanged(int index);
 
 private:
-    void setup();
     void loadWidgetState();
     void saveWidgetState();
     void updateUiState();
@@ -53,7 +46,7 @@ private:
 
 private:
     Ui::QueryPage* ui;
-    MainInterface* mainInterface_{};
+    MainWindow* mainWindow_{};
     DataModel* possibleMatchesModel_;
 
     Q_DISABLE_COPY_MOVE(QueryPage)

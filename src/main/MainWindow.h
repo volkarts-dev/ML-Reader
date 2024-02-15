@@ -3,28 +3,42 @@
 
 #pragma once
 
-#include "MainInterface.h"
 #include <QMainWindow>
 
 class DataModel;
+class EndpointSelector;
 
 namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow, public MainInterface
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
+    enum class Page
+    {
+        Loader,
+        Query,
+        Editor,
+    };
     static MainWindow* find(QWidget* base);
 
 public:
     explicit MainWindow(QWidget* parent = {});
     ~MainWindow() override;
 
-    void showStatusMessage(const QString& message, int timeout = 0) override;
-    void openPage(Page page, const QVariant& openData) override;
+    bool initialize();
+
+    EndpointSelector* endpointSelector() const;
+
+    void showStatusMessage(const QString& message, int timeout = 0);
+    void openPage(Page page, const QVariant& openData);
+
+signals:
+    void endpointConfigChanged();
+    void selectedEndpointChanged(int index);
 
 private slots:
     void onActionEndpointConfigEdit();
@@ -36,7 +50,6 @@ private slots:
     void onSelectedEndpointChanged(int index);
 
 private:
-    bool setup();
     void loadMainWindowState();
     void saveMainWindowState();
 

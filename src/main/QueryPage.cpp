@@ -8,7 +8,8 @@
 #include "DataModel.h"
 #include "EndpointConfig.h"
 #include "EndpointConfigModel.h"
-#include "MainInterface.h"
+#include "EndpointSelector.h"
+#include "MainWindow.h"
 #include "MlClientTools.h"
 #include "Tools.h"
 #include <QClipboard>
@@ -21,7 +22,6 @@ QueryPage::QueryPage(QWidget *parent) :
     possibleMatchesModel_{new DataModel{this}}
 {
     ui->setupUi(this);
-    setup();
 }
 
 QueryPage::~QueryPage()
@@ -31,14 +31,17 @@ QueryPage::~QueryPage()
     delete ui;
 }
 
-void QueryPage::setup()
+void QueryPage::initialize(MainWindow* mainWindow)
 {
+    mainWindow_ = mainWindow;
+
     ui->queryResultPane->setVisible(false);
     ui->possibleMatchesPane->setVisible(false);
 
     ui->possibleMatches->setModel(possibleMatchesModel_);
 
-    connect(ui->endpointSelector, &EndpointSelector::selectedEndpointChanged, this, &QueryPage::onSelectedEndpointChanged);
+    connect(mainWindow_, &MainWindow::endpointConfigChanged, this, &QueryPage::onEndpointConfigChanged);
+    connect(mainWindow_, &MainWindow::selectedEndpointChanged, this, &QueryPage::onSelectedEndpointChanged);
 
     connect(ui->executeBtn, &QAbstractButton::clicked, this, &QueryPage::onExecuteButtonClicked);
     connect(ui->editPatientBtn, &QAbstractButton::clicked, this, &QueryPage::onEditPatientBtnClicked);
@@ -55,9 +58,6 @@ void QueryPage::loadWidgetState()
 {
     QSettings s;
 
-    ui->endpointSelector->setSelectedEndpoint(
-                indexClamp(s.value("Window/QueryPage/SelectedEndpoint").toInt(),
-                           app()->endpointConfigModel()->rowCount() - 1));
     ui->splitter->restoreState(s.value("Window/QueryPage/Splitter").toByteArray());
 }
 
@@ -65,23 +65,12 @@ void QueryPage::saveWidgetState()
 {
     QSettings s;
 
-    s.setValue("Window/QueryPage/SelectedEndpoint", ui->endpointSelector->selectedEndpoint());
     s.setValue("Window/QueryPage/Splitter", ui->splitter->saveState());
-}
-
-void QueryPage::handleEndpointConfigChanged()
-{
-    reloadDynamicForm(ui->endpointSelector->selectedEndpoint());
-}
-
-void QueryPage::setSelectedEndpoint(int index)
-{
-    ui->endpointSelector->setSelectedEndpoint(index);
 }
 
 void QueryPage::updateUiState()
 {
-    bool endpointSelected = ui->endpointSelector->selectedEndpoint() != -1;
+    bool endpointSelected = mainWindow_->endpointSelector()->selectedEndpoint() != -1;
 
     ui->executeBtn->setEnabled(endpointSelected);
 }
@@ -90,7 +79,8 @@ void QueryPage::execute(bool sureness)
 {
     setEnabled(false);
 
-    auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
+    auto mlClient = createMlClient(mainWindow_->endpointSelector()->selectedEndpoint(),
+                                   mainWindow_->endpointSelector()->currentApiKey());
     mlClientQueryPatientData(mlClient, ui->patientDataForm->extractFormData(), sureness,
                              this, &QueryPage::onPatientDataQueringDone);
 }
@@ -129,13 +119,16 @@ void QueryPage::changeEvent(QEvent* event)
     }
 }
 
+void QueryPage::onEndpointConfigChanged()
+{
+    reloadDynamicForm(mainWindow_->endpointSelector()->selectedEndpoint());
+}
+
 void QueryPage::onSelectedEndpointChanged(int index)
 {
     reloadDynamicForm(index);
 
     updateUiState();
-
-    emit selectedEndpointChanged(index);
 }
 
 void QueryPage::onExecuteButtonClicked()
@@ -145,13 +138,13 @@ void QueryPage::onExecuteButtonClicked()
 
 void QueryPage::onEditPatientBtnClicked()
 {
-    mainInterface_->openPage(MainInterface::Page::Editor, ui->patientPid->text());
+    mainWindow_->openPage(MainWindow::Page::Editor, ui->patientPid->text());
 }
 
 void QueryPage::onCopyPidBtnClicked()
 {
     QGuiApplication::clipboard()->setText(ui->patientPid->text());
-    mainInterface_->showStatusMessage(tr("Copied PID to Clipboard"), 1000);
+    mainWindow_->showStatusMessage(tr("Copied PID to Clipboard"), 1000);
 }
 
 void QueryPage::onCreateAnywayBtnClicked()
@@ -170,7 +163,7 @@ void QueryPage::onPatientDataQueringDone(const MlClient::Error& error, const MlC
                     QMessageBox::Ok,
                     QMessageBox::Ok);
 
-        mainInterface_->showStatusMessage(tr("Failed to query Patient data"), 5000);
+        mainWindow_->showStatusMessage(tr("Failed to query Patient data"), 5000);
     }
     else
     {
@@ -188,12 +181,14 @@ void QueryPage::onPatientDataQueringDone(const MlClient::Error& error, const MlC
             ui->queryResultPane->setVisible(false);
             ui->possibleMatchesPane->setVisible(true);
 
-            auto mlClient = createMlClient(ui->endpointSelector->selectedEndpoint(), ui->endpointSelector->currentApiKey());
-            mlClientLoadPatientData(mlClient, result.possibleMatchPids, ui->endpointSelector->currentFieldList(),
+            auto mlClient = createMlClient(mainWindow_->endpointSelector()->selectedEndpoint(),
+                                           mainWindow_->endpointSelector()->currentApiKey());
+            mlClientLoadPatientData(mlClient, result.possibleMatchPids,
+                                    mainWindow_->endpointSelector()->currentFieldList(),
                                      this, &QueryPage::onPatientDataLoadingDone);
         }
 
-        mainInterface_->showStatusMessage(tr("Patient data queried"), 1000);
+        mainWindow_->showStatusMessage(tr("Patient data queried"), 1000);
     }
 
     setEnabled(true);
@@ -212,11 +207,11 @@ void QueryPage::onPatientDataLoadingDone(const MlClient::Error& error, const MlC
                     QMessageBox::Ok,
                     QMessageBox::Ok);
 
-        mainInterface_->showStatusMessage(tr("Failed to load possible matches"), 5000);
+        mainWindow_->showStatusMessage(tr("Failed to load possible matches"), 5000);
     }
     else
     {
-        const auto fieldNames = ui->endpointSelector->currentFieldList();
+        const auto fieldNames = mainWindow_->endpointSelector()->currentFieldList();
 
         QList<QStringList> possibleMatchesModelData;
 
@@ -242,7 +237,7 @@ void QueryPage::onPatientDataLoadingDone(const MlClient::Error& error, const MlC
 
         ui->possibleMatches->setEnabled(true);
 
-        mainInterface_->showStatusMessage(tr("Possible matches loaded"), 1000);
+        mainWindow_->showStatusMessage(tr("Possible matches loaded"), 1000);
     }
 
     deleteSenderMlClient(sender());
@@ -266,5 +261,5 @@ void QueryPage::onPossibleMatchesDoubleClicked(const QModelIndex& index)
     const auto pidIndex = possibleMatchesModel_->index(index.row(), pidColumn);
     const auto pid = possibleMatchesModel_->data(pidIndex, Qt::DisplayRole);
 
-    mainInterface_->openPage(MainInterface::Page::Editor, pid);
+    mainWindow_->openPage(MainWindow::Page::Editor, pid);
 }

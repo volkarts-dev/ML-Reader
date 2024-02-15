@@ -8,7 +8,7 @@
 #include <QWidget>
 
 class DataModel;
-class MainInterface;
+class MainWindow;
 class QDataWidgetMapper;
 
 namespace Ui {
@@ -23,14 +23,7 @@ public:
     explicit LoaderPage(QWidget* parent = {});
     ~LoaderPage() override;
 
-    void setMainInterface(MainInterface* mainInterface) { mainInterface_ = mainInterface; }
-
-public slots:
-    void handleEndpointConfigChanged();
-    void setSelectedEndpoint(int index);
-
-signals:
-    void selectedEndpointChanged(int index);
+    void initialize(MainWindow* mainWindow);
 
 signals:
     void inputLoadingDone(bool result);
@@ -43,12 +36,12 @@ private slots:
     void onInputLoadingDone(bool result);
     void onOutputSavingDone(bool result);
     void onInputDataChanged();
-    void onSelectedEndpointChanged(int index);
     void onPidColumSelectorChanged(int index);
     void onPatientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& patientData);
+    void onEndpointConfigChanged();
+    void onSelectedEndpointChanged(int index);
 
 private:
-    void setup();
     void loadWidgetState();
     void saveWidgetState();
     void updateUiState();
@@ -61,7 +54,7 @@ private:
 
 private:
     Ui::LoaderPage* ui;
-    MainInterface* mainInterface_{};
+    MainWindow* mainWindow_{};
     DataModel* inputData_{};
     DataModel* outputData_{};
     QElapsedTimer executionTimer_;

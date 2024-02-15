@@ -7,7 +7,7 @@
 #include <QWidget>
 
 class DataModel;
-class MainInterface;
+class MainWindow;
 
 namespace Ui {
 class EditorPage;
@@ -21,30 +21,23 @@ public:
     explicit EditorPage(QWidget* parent = {});
     ~EditorPage() override;
 
-    void setMainInterface(MainInterface* mainInterface) { mainInterface_ = mainInterface; }
+    void initialize(MainWindow* mainWindow);
 
     void startEditing(const QString& pid);
-
-public slots:
-    void handleEndpointConfigChanged();
-    void setSelectedEndpoint(int index);
-
-signals:
-    void selectedEndpointChanged(int index);
 
 protected:
     void changeEvent(QEvent* event) override;
 
 private slots:
-    void onSelectedEndpointChanged(int index);
     void onLoadIDataBtnClicked();
     void onSaveBtnClicked();
     void onAbortBtnClicked();
     void onPatientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& patientData);
     void onPatientDataEditingDone(const MlClient::Error& error);
+    void onEndpointConfigChanged();
+    void onSelectedEndpointChanged(int index);
 
 private:
-    void setup();
     void loadWidgetState();
     void saveWidgetState();
     void updateUiState();
@@ -53,7 +46,7 @@ private:
 
 private:
     Ui::EditorPage* ui;
-    MainInterface* mainInterface_{};
+    MainWindow* mainWindow_{};
     QString loadedPatientPid_{};
 
     Q_DISABLE_COPY_MOVE(EditorPage)

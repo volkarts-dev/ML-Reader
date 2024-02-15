@@ -24,6 +24,7 @@ public:
     QStringList currentFieldList() const;
 
 public slots:
+    void onEndpointConfigChanged();
     void setSelectedEndpoint(int index);
 
 signals:
