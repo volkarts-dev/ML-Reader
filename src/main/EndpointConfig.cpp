@@ -7,6 +7,17 @@
 #include <QSettings>
 #include <QUuid>
 
+namespace {
+QString stripTrailingSlash(QString url)
+{
+    while (url.endsWith(QLatin1Char('/')))
+    {
+        url.remove(url.length() - 1, 1);
+    }
+    return url;
+}
+
+}
 EndpointConfig::EndpointConfig(const QString& name)
 {
     data_.resize(static_cast<int>(Field::_Count));
@@ -21,7 +32,7 @@ void EndpointConfig::load(const QSettings& s)
 
     data_[toInt(Field::Uuid)] = id;
     data_[toInt(Field::Name)] = s.value(QStringLiteral("Name")).toString();
-    data_[toInt(Field::BaseURL)] = s.value(QStringLiteral("BaseURL")).toString();
+    data_[toInt(Field::BaseURL)] = stripTrailingSlash(s.value(QStringLiteral("BaseURL")).toString());
     data_[toInt(Field::ApiVersion)] = s.value(QStringLiteral("ApiVersion")).toString();
     data_[toInt(Field::Fields)] = s.value(QStringLiteral("Fields")).value<QStringList>();
 
@@ -51,5 +62,12 @@ QVariant EndpointConfig::value(EndpointConfig::Field field) const
 
 void EndpointConfig::setValue(EndpointConfig::Field field, const QVariant& value)
 {
-    data_[static_cast<int>(field)] = value;
+    if (field == Field::BaseURL)
+    {
+        data_[static_cast<int>(field)] = stripTrailingSlash(value.toString());
+    }
+    else
+    {
+        data_[static_cast<int>(field)] = value;
+    }
 }
