@@ -52,6 +52,7 @@ private slots:
 private:
     void loadMainWindowState();
     void saveMainWindowState();
+    void updateUi();
 
 private:
     Ui::MainWindow* ui;

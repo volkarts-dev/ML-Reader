@@ -75,6 +75,9 @@ bool MainWindow::initialize()
 
     loadMainWindowState();
 
+    updateUi();
+    setVisible(true);
+
     return true;
 }
 
@@ -131,11 +134,21 @@ void MainWindow::saveMainWindowState()
     s.setValue("Window/FunctionPage", ui->functionStack->currentIndex());
 }
 
+void MainWindow::updateUi()
+{
+    const auto model = app()->endpointConfigModel();
+    const auto emptyConfig = model->rowCount() == 0;
+
+    ui->centralwidget->setEnabled(!emptyConfig);
+    ui->menuFunction->setEnabled(!emptyConfig);
+}
+
 void MainWindow::onActionEndpointConfigEdit()
 {
     EndpointConfigEditDlg dlg{this};
     dlg.exec();
 
+    updateUi();
 
     emit endpointConfigChanged();
 }
