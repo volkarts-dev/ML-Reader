@@ -14,17 +14,6 @@
 #include <QThreadPool>
 #include <QSettings>
 
-MainWindow* MainWindow::find(QWidget* base)
-{
-    while (base)
-    {
-        if (auto* mainWindow = qobject_cast<MainWindow*>(base))
-            return mainWindow;
-        base = base->parentWidget();
-    }
-    return nullptr;
-}
-
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow{parent},
     ui{new Ui::MainWindow{}}

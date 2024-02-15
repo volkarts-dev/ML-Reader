@@ -23,7 +23,6 @@ public:
         Query,
         Editor,
     };
-    static MainWindow* find(QWidget* base);
 
 public:
     explicit MainWindow(QWidget* parent = {});

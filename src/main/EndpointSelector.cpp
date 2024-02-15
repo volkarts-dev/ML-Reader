@@ -102,7 +102,7 @@ void EndpointSelector::onEndpointSelectorChanged(int index)
 {
     endpointChanging_ = true;
 
-    auto model = app()->endpointConfigModel();
+    const auto model = app()->endpointConfigModel();
     {
         const auto mi = model->index(index, toInt(EndpointConfig::Field::BaseURL));
         ui->baseURL->setText(model->data(mi, Qt::DisplayRole).toString());
@@ -117,7 +117,6 @@ void EndpointSelector::onEndpointSelectorChanged(int index)
     ui->apiKey->setText({});
     if (ui->saveApiKey->isChecked())
         app()->passwordStore()->loadPassword(currentEndpointUuid(), this);
-
 
     emit selectedEndpointChanged(index);
 }
