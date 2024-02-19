@@ -6,10 +6,21 @@
 #include "HttpUserDelegate.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
+#include "Tools.h"
 #include <QAuthenticator>
 #include <QNetworkReply>
 
 namespace {
+
+void checkTLSSupport(const HttpRequest& request)
+{
+    if (request.url().scheme().compare(QLatin1String("https"), Qt::CaseInsensitive) && !QSslSocket::supportsSsl())
+    {
+        qCCritical(MLC_LOG_CAT) << "No TLS Support. Required TLS library version version:" <<
+            QSslSocket::sslLibraryBuildVersionString() <<
+            "TLS library version available:" << QSslSocket::sslLibraryVersionString();
+    }
+}
 
 void setHeaders(QNetworkRequest& request, const QHash<QString, QString>& headers)
 {
@@ -31,6 +42,8 @@ HttpClient::HttpClient(HttpUserDelegate* delegate, QObject* parent) :
 
 HttpResponse* HttpClient::startRequest(const HttpRequest& request)
 {
+    checkTLSSupport(request);
+
     switch (request.method())
     {
         using enum HttpRequest::Method;
