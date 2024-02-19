@@ -2,29 +2,14 @@ cmake_minimum_required(VERSION 3.20)
 
 project(ML-Reader LANGUAGES CXX)
 
-list(
-    APPEND
+list(APPEND
     CMAKE_MODULE_PATH
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
 )
 
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE
-        "Debug"
-        CACHE STRING
-              "Choose the type of build"
-              FORCE
-    )
-    set_property(
-        CACHE CMAKE_BUILD_TYPE
-        PROPERTY STRINGS
-                 "Debug"
-                 "Release"
-    )
-endif()
-
-if(WIN32)
-    set(OPENSSL_INSTALL_DIR "C:/Qt/Tools/OpenSSL/Win_x64" CACHE PATH "OpenSSL install directory")
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build" FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
 include(GNUInstallDirs)
