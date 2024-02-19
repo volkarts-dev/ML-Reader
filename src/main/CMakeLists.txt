@@ -51,7 +51,7 @@ add_executable(
 )
 
 configure_mocs(mlreader)
-setup_git_version_config(project_config Version.h.in)
+setup_git_version_config(mlreader Version.h.in)
 
 target_link_libraries(mlreader PRIVATE
     project_config
