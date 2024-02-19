@@ -1,5 +1,4 @@
-add_executable(
-    mlreader
+add_executable(mlreader
     Application.cpp
     Application.h
     Configuration.cpp
