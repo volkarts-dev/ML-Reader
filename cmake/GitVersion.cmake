@@ -37,12 +37,15 @@ function(setup_git_version_config target config_file_in)
     get_filename_component(config_file_name ${config_file_in} NAME_WLE)
     set(config_file_out ${GIT_VERSION_TARGET_DIR}/${config_file_name})
 
-    add_custom_target(CheckGitVersion COMMAND ${CMAKE_COMMAND}
+    add_custom_target(
+        CheckGitVersion
+        COMMAND ${CMAKE_COMMAND}
         -DRUN_GIT_VERSION_CHECK=1
         -DGIT_VERSION_TARGET_DIR=${GIT_VERSION_TARGET_DIR}
         -DGIT_VERSION_CONFIG_FILE_IN=${abs_config_file_in}
         -DGIT_VERSION_CONFIG_FILE_OUT=${config_file_out}
         -P ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/GitVersion.cmake
+        COMMENT "Retrieve git info"
         BYPRODUCTS ${config_file_out}
     )
 
