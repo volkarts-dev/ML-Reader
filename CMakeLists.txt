@@ -15,6 +15,7 @@ endif()
 include(GNUInstallDirs)
 include(PreventInSourceBuilds)
 include(CompilerWarnings)
+include(GitVersion)
 
 add_library(project_config INTERFACE)
 set_compiler_warnings(project_config INTERFACE)
