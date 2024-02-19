@@ -8,9 +8,12 @@
 #include "EndpointConfigEditDlg.h"
 #include "EndpointConfigModel.h"
 #include "Tools.h"
+#include "Version.h"
+#include <QDateTime>
 #include <QDebug>
 #include <QFile>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QThreadPool>
 #include <QSettings>
 
@@ -55,6 +58,7 @@ bool MainWindow::initialize()
 
     connect(ui->actionEndpointConfigEdit, &QAction::triggered, this, &MainWindow::onActionEndpointConfigEdit);
     connect(ui->actionQuit, &QAction::triggered, this, &MainWindow::onActionQuitTriggerd);
+    connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::onActionAboutTriggerd);
 
     connect(ui->actionShowLoaderPage, &QAction::triggered, this, &MainWindow::onShowLoaderPageTriggered);
     connect(ui->actionShowQueryPage, &QAction::triggered, this, &MainWindow::onShowQueryPageTriggered);
@@ -145,6 +149,23 @@ void MainWindow::onActionEndpointConfigEdit()
 void MainWindow::onActionQuitTriggerd()
 {
     QApplication::quit();
+}
+
+void MainWindow::onActionAboutTriggerd()
+{
+    const auto time = QDateTime::fromSecsSinceEpoch(GIT_TIMESTAMP);
+
+    QMessageBox::about(this, tr("About ML-Reader"), tr(
+                           "ML-Reader\n"
+                           "Copyright: 2023-%1 Daniel Volk\n"
+                           "Version: %2-%3\n"
+                           "Date: %4"
+                           ).arg(
+                           time.toString("yyyy"),
+                           APPLICATION_VERSION,
+                           GIT_VERSION,
+                           time.toString("yyyy-MM-dd hh:mm")
+                           ));
 }
 
 void MainWindow::onShowLoaderPageTriggered()

@@ -1,0 +1,7 @@
+#pragma once
+
+#include <QString>
+
+const auto APPLICATION_VERSION = QStringLiteral("1.0");
+const auto GIT_VERSION = QStringLiteral("@GIT_HASH@");
+const auto GIT_TIMESTAMP = uint64_t{@GIT_TIME@};

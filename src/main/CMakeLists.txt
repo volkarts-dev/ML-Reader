@@ -47,9 +47,11 @@ add_executable(
     QueryPage.ui
     Tools.cpp
     Tools.h
+    Version.h.in
 )
 
 configure_mocs(mlreader)
+setup_git_version_config(project_config Version.h.in)
 
 target_link_libraries(mlreader PRIVATE
     project_config

@@ -42,6 +42,7 @@ signals:
 private slots:
     void onActionEndpointConfigEdit();
     void onActionQuitTriggerd();
+    void onActionAboutTriggerd();
     void onShowLoaderPageTriggered();
     void onShowQueryPageTriggered();
     void onShowEditPageTriggered();
