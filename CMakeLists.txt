@@ -23,10 +23,6 @@ if(NOT CMAKE_BUILD_TYPE)
     )
 endif()
 
-if(WIN32)
-    set(OPENSSL_INSTALL_DIR "C:/Qt/Tools/OpenSSL/Win_x64" CACHE PATH "OpenSSL install directory")
-endif()
-
 include(GNUInstallDirs)
 include(PreventInSourceBuilds)
 include(CompilerWarnings)
