@@ -5,7 +5,6 @@
 #include "ui_LoaderPage.h"
 
 #include "Application.h"
-#include "Configuration.h"
 #include "CsvReader.h"
 #include "DataModel.h"
 #include "EndpointConfigModel.h"
@@ -13,12 +12,18 @@
 #include "MainWindow.h"
 #include "MlClientTools.h"
 #include "Tools.h"
+#include "UserSettings.h"
 #include <QDebug>
 #include <QDataWidgetMapper>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QSettings>
 #include <QMessageBox>
+
+namespace {
+
+const auto CfgPageSplitter= QStringLiteral("Window/LoaderPage/Splitter");
+
+} // namespace
 
 LoaderPage::LoaderPage(QWidget* parent) :
     QWidget{parent},
@@ -72,16 +77,16 @@ void LoaderPage::initialize(MainWindow* mainWindow)
 
 void LoaderPage::loadWidgetState()
 {
-    QSettings s;
+    UserSettings s;
 
-    ui->splitter->restoreState(s.value("Window/LoaderPage/Splitter").toByteArray());
+    ui->splitter->restoreState(s.value(CfgPageSplitter).toByteArray());
 }
 
 void LoaderPage::saveWidgetState()
 {
-    QSettings s;
+    UserSettings s;
 
-    s.setValue("Window/LoaderPage/Splitter", ui->splitter->saveState());
+    s.setValue(CfgPageSplitter, ui->splitter->saveState());
 }
 
 void LoaderPage::updateUiState()

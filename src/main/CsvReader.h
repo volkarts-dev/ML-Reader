@@ -5,7 +5,7 @@
 
 #include <QObject>
 
-class Configuration;
+class UserSettings;
 class DataModel;
 class QIODevice;
 

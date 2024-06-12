@@ -1,8 +1,8 @@
 add_executable(mlreader
     Application.cpp
     Application.h
-    Configuration.cpp
-    Configuration.h
+    UserSettings.cpp
+    UserSettings.h
     CsvRawData.cpp
     CsvRawData.h
     CsvReader.cpp

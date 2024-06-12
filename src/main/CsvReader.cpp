@@ -3,10 +3,9 @@
 
 #include "CsvReader.h"
 
-#include "Application.h"
 #include "CsvRawData.h"
-#include "Configuration.h"
 #include "DataModel.h"
+#include "UserSettings.h"
 #include <QIODevice>
 #include <QTextStream>
 #include <qtcsv/reader.h>
@@ -19,14 +18,14 @@ CsvReader::CsvReader(QObject* parent) :
 
 bool CsvReader::read(QIODevice& input, DataModel* model)
 {
-    auto cfg = app()->configuration();
+    UserSettings s;
 
     CsvRawData dataAdapter{};
 
-    auto codec = QTextCodec::codecForName(cfg->stringValue(Configuration::Key::CsvColumnSeparator).toLatin1());
+    auto codec = QTextCodec::codecForName(s.stringValue(CfgCsvColumnSeparator).toLatin1());
     auto result = QtCSV::Reader::readToData(
-                input, dataAdapter, cfg->stringValue(Configuration::Key::CsvColumnSeparator),
-                cfg->stringValue(Configuration::Key::CsvQuotingCharacter), codec);
+                input, dataAdapter, s.stringValue(CfgCsvColumnSeparator),
+                s.stringValue(CfgCsvQuotingCharacter), codec);
 
     if (result)
         model->setModelData(dataAdapter.data());
@@ -38,12 +37,12 @@ bool CsvReader::read(QIODevice& input, DataModel* model)
 
 bool CsvReader::write(QIODevice& output, bool withHeader, DataModel* model)
 {
-    auto cfg = app()->configuration();
+    UserSettings s;
 
     CsvRawData dataAdapter{model->modelData(), !withHeader};
 
-    auto codec = QTextCodec::codecForName(cfg->stringValue(Configuration::Key::CsvColumnSeparator).toLatin1());
+    auto codec = QTextCodec::codecForName(s.stringValue(CfgCsvColumnSeparator).toLatin1());
     return QtCSV::Writer::write(
-                output, dataAdapter, cfg->stringValue(Configuration::Key::CsvColumnSeparator),
-                cfg->stringValue(Configuration::Key::CsvQuotingCharacter), {}, {}, codec);
+                output, dataAdapter, s.stringValue(CfgCsvColumnSeparator),
+                s.stringValue(CfgCsvQuotingCharacter), {}, {}, codec);
 }

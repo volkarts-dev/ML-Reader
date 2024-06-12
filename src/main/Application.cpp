@@ -3,10 +3,10 @@
 
 #include "Application.h"
 
-#include "Configuration.h"
 #include "MainWindow.h"
 #include "EndpointConfigModel.h"
 #include "PasswordStore.h"
+#include "UserSettings.h"
 #include <QThreadPool>
 
 namespace {
@@ -46,7 +46,17 @@ Application::~Application()
 
 bool Application::initialize()
 {
-    configuration_.reset(new Configuration{});
+    { // set some default settings
+        UserSettings s;
+        if (s.value(CfgLastAccessedDirectory).isNull())
+            s.setValue(CfgLastAccessedDirectory, QString{});
+        if (s.value(CfgCsvColumnSeparator).isNull())
+            s.setValue(CfgCsvColumnSeparator, QStringLiteral(";"));
+        if (s.value(CfgCsvQuotingCharacter).isNull())
+            s.setValue(CfgCsvQuotingCharacter, QStringLiteral("\""));
+        if (s.value(CfgCsvCodec).isNull())
+            s.setValue(CfgCsvCodec, QStringLiteral("ISO 8859-15"));
+    }
 
     endpointConfigModel_.reset(new EndpointConfigModel{});
     if (!endpointConfigModel_->load())

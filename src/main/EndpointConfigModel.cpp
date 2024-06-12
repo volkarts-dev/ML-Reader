@@ -3,10 +3,21 @@
 
 #include "EndpointConfigModel.h"
 
-#include <QSettings>
+#include "Application.h"
+#include <QDir>
+#include <QStandardPaths>
 
-EndpointConfigModel::EndpointConfigModel(QObject* parent) : QAbstractTableModel(parent)
+namespace {
+
+const auto CfgEndpoints = QString("Endpoints");
+
+} // namespace
+
+EndpointConfigModel::EndpointConfigModel(QObject* parent) :
+    QAbstractTableModel(parent)
 {
+    auto s = openSettings();
+    writeable_ = s.isWritable();
 }
 
 EndpointConfigModel::~EndpointConfigModel()
@@ -46,7 +57,10 @@ QVariant EndpointConfigModel::data(const QModelIndex& index, int role) const
 
 Qt::ItemFlags EndpointConfigModel::flags(const QModelIndex& index) const
 {
-    return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
+    auto flags = QAbstractTableModel::flags(index);
+    if (isWriteable())
+        flags |= Qt::ItemIsEditable;
+    return flags;
 }
 
 bool EndpointConfigModel::setData(const QModelIndex& index, const QVariant& value, int role)
@@ -99,8 +113,9 @@ bool EndpointConfigModel::load()
 
     configs_.clear();
 
-    QSettings s;
-    int size = s.beginReadArray(QStringLiteral("Endpoints"));
+    auto s = openSettings();
+
+    int size = s.beginReadArray(CfgEndpoints);
     for (int i = 0; i < size; ++i)
     {
         s.setArrayIndex(i);
@@ -117,9 +132,9 @@ bool EndpointConfigModel::load()
 
 bool EndpointConfigModel::save()
 {
-    QSettings s;
+    auto s = openSettings();
 
-    s.beginWriteArray(QStringLiteral("Endpoints"), configs_.size());
+    s.beginWriteArray(CfgEndpoints, configs_.size());
     for (int i = 0; i < configs_.size(); ++i)
     {
         s.setArrayIndex(i);
@@ -128,4 +143,15 @@ bool EndpointConfigModel::save()
     s.endArray();
 
     return true;
+}
+
+QSettings EndpointConfigModel::openSettings() const
+{
+    // Use QSettings to load the endpoint configuration directly from ini file
+
+    const QString configFilePath =
+            Application::applicationDirPath() + QDir::separator() +
+            QLatin1String("endpoints.conf");
+
+    return QSettings{configFilePath, QSettings::IniFormat};
 }

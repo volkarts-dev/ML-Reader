@@ -12,7 +12,6 @@
 #include "MlClientTools.h"
 #include "Tools.h"
 #include <QMessageBox>
-#include <QSettings>
 
 EditorPage::EditorPage(QWidget *parent) :
     QWidget{parent},
@@ -48,12 +47,10 @@ void EditorPage::initialize(MainWindow* mainWindow)
 
 void EditorPage::loadWidgetState()
 {
-    //QSettings s;
 }
 
 void EditorPage::saveWidgetState()
 {
-    //QSettings s;
 }
 
 void EditorPage::updateUiState()

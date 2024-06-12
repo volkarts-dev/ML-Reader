@@ -6,6 +6,8 @@
 #include "EndpointConfig.h"
 #include <QAbstractTableModel>
 
+#include <QSettings>
+
 class EndpointConfigModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -24,11 +26,17 @@ public:
     int addConfig(const EndpointConfig& config);
     void removeConfig(int index);
 
+    bool isWriteable() const { return writeable_; }
+
     bool load();
     bool save();
 
 private:
+    QSettings openSettings() const;
+
+private:
     QList<EndpointConfig> configs_;
+    bool writeable_;
 
     Q_DISABLE_COPY_MOVE(EndpointConfigModel)
 };

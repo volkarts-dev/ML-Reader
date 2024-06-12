@@ -9,13 +9,22 @@
 #include "EndpointConfigModel.h"
 #include "Tools.h"
 #include "Version.h"
+#include "UserSettings.h"
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QThreadPool>
-#include <QSettings>
+
+namespace {
+
+const auto CfgWindowGeometry = QString("Window/Main/Geometry");
+const auto CfgWindowState = QString("Window/Main/State");
+const auto CfgWindowSelectedEndpoint = QString("Window/Main/SelectedEndpoint");
+const auto CfgWindowFunctionPage = QString("Window/Main/FunctionPage");
+
+} // namespace
 
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow{parent},
@@ -103,28 +112,30 @@ void MainWindow::openPage(Page page, const QVariant& openData)
 
 void MainWindow::loadMainWindowState()
 {
-    QSettings s;
+    UserSettings s;
 
-    restoreGeometry(s.value("Window/Geometry").toByteArray());
-    restoreState(s.value("Window/State").toByteArray());
+    restoreGeometry(s.value(CfgWindowGeometry).toByteArray());
+    restoreState(s.value(CfgWindowState).toByteArray());
 
     ui->endpointSelector->setSelectedEndpoint(
-                indexClamp(s.value("Window/SelectedEndpoint").toInt(),
+                indexClamp(s.value(CfgWindowSelectedEndpoint).toInt(),
                            app()->endpointConfigModel()->rowCount() - 1));
 
-    int functionIndex = indexClamp(s.value("Window/FunctionPage").toInt(), ui->functionStack->count() - 1, 0);
-    ui->functionStack->setCurrentIndex(functionIndex);
-    onFunctionStackCurrentChanged(functionIndex);
+    int functionIndex = indexClamp(s.value(CfgWindowFunctionPage).toInt(), ui->functionStack->count() - 1, 0);
+    if (ui->functionStack->currentIndex() != functionIndex)
+        ui->functionStack->setCurrentIndex(functionIndex);
+    else
+        onFunctionStackCurrentChanged(functionIndex);
 }
 
 void MainWindow::saveMainWindowState()
 {
-    QSettings s;
+    UserSettings s;
 
-    s.setValue("Window/Geometry", saveGeometry());
-    s.setValue("Window/State", saveState());
-    s.setValue("Window/SelectedEndpoint", ui->endpointSelector->selectedEndpoint());
-    s.setValue("Window/FunctionPage", ui->functionStack->currentIndex());
+    s.setValue(CfgWindowGeometry, saveGeometry());
+    s.setValue(CfgWindowState, saveState());
+    s.setValue(CfgWindowSelectedEndpoint, ui->endpointSelector->selectedEndpoint());
+    s.setValue(CfgWindowFunctionPage, ui->functionStack->currentIndex());
 }
 
 void MainWindow::updateUi()

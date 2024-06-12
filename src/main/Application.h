@@ -5,7 +5,6 @@
 
 #include <QApplication>
 
-class Configuration;
 class MainWindow;
 class EndpointConfigModel;
 class PasswordStore;
@@ -20,7 +19,6 @@ public:
 
     bool initialize();
 
-    Configuration* configuration() const { return configuration_.get(); }
     EndpointConfigModel* endpointConfigModel() const { return endpointConfigModel_.get(); }
     PasswordStore* passwordStore() const { return passwordStore_.get(); }
     MainWindow* mainWindow() const { return mainWindow_.get(); }
@@ -28,7 +26,6 @@ public:
     void runJob(const std::function<void()>& runnable);
 
 private:
-    QScopedPointer<Configuration> configuration_;
     QScopedPointer<EndpointConfigModel> endpointConfigModel_;
     QScopedPointer<PasswordStore> passwordStore_;
     QScopedPointer<MainWindow> mainWindow_;

@@ -12,10 +12,16 @@
 #include "MainWindow.h"
 #include "MlClientTools.h"
 #include "Tools.h"
+#include "UserSettings.h"
 #include <QClipboard>
 #include <QMessageBox>
-#include <QSettings>
 #include <QMenu>
+
+namespace {
+
+const auto CfgPageSplitter= QString("Window/QueryPage/Splitter");
+
+} // namespace
 
 QueryPage::QueryPage(QWidget *parent) :
     QWidget{parent},
@@ -60,16 +66,16 @@ void QueryPage::initialize(MainWindow* mainWindow)
 
 void QueryPage::loadWidgetState()
 {
-    QSettings s;
+    UserSettings s;
 
-    ui->splitter->restoreState(s.value("Window/QueryPage/Splitter").toByteArray());
+    ui->splitter->restoreState(s.value(CfgPageSplitter).toByteArray());
 }
 
 void QueryPage::saveWidgetState()
 {
-    QSettings s;
+    UserSettings s;
 
-    s.setValue("Window/QueryPage/Splitter", ui->splitter->saveState());
+    s.setValue(CfgPageSplitter, ui->splitter->saveState());
 }
 
 void QueryPage::updateUiState()

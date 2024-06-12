@@ -53,6 +53,9 @@ void EndpointConfigEditDlg::setup()
     connect(ui->removeBtn, &QToolButton::clicked, this, &EndpointConfigEditDlg::onRemoveButtonClicked);
 
     onSelectionChanged({}, {});
+
+    setEnabled(app()->endpointConfigModel()->isWriteable());
+    ui->readOnlyHint->setVisible(!app()->endpointConfigModel()->isWriteable());
 }
 
 void EndpointConfigEditDlg::onAddButtonClicked()
