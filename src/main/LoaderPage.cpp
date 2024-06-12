@@ -13,11 +13,14 @@
 #include "MlClientTools.h"
 #include "Tools.h"
 #include "UserSettings.h"
+#include <QBuffer>
+#include <QClipboard>
 #include <QDebug>
 #include <QDataWidgetMapper>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QMimeData>
 
 namespace {
 
@@ -55,8 +58,10 @@ void LoaderPage::initialize(MainWindow* mainWindow)
     connect(mainWindow_, &MainWindow::selectedEndpointChanged, this, &LoaderPage::onSelectedEndpointChanged);
 
     connect(ui->executeBtn, &QAbstractButton::clicked, this, &LoaderPage::onExecuteButtonClicked);
+    connect(ui->pasteBtn, &QAbstractButton::clicked, this, &LoaderPage::onPasteButtonClicked);
     connect(ui->loadBtn, &QAbstractButton::clicked, this, &LoaderPage::onLoadButtonClicked);
     connect(ui->saveBtn, &QAbstractButton::clicked, this, &LoaderPage::onSaveButtonClicked);
+    connect(ui->clearInputBtn, &QAbstractButton::clicked, this, &LoaderPage::onClearInputButtonClicked);
 
     connect(this, &LoaderPage::inputLoadingDone, this, &LoaderPage::onInputLoadingDone);
     connect(this, &LoaderPage::outputSavingDone, this, &LoaderPage::onOutputSavingDone);
@@ -73,6 +78,9 @@ void LoaderPage::initialize(MainWindow* mainWindow)
     updateUiState();
 
     loadWidgetState();
+
+    // disable for now
+    ui->clearInputBtn->setVisible(false);
 }
 
 void LoaderPage::loadWidgetState()
@@ -205,14 +213,19 @@ void LoaderPage::onExecuteButtonClicked()
     mlClientLoadPatientData(mlClient, makePidList(), fieldList, this, &LoaderPage::onPatientDataLoadingDone);
 }
 
+void LoaderPage::onPasteButtonClicked()
+{
+    readInputFromClipboard();
+}
+
 void LoaderPage::onLoadButtonClicked()
 {
-    auto cfg = app()->configuration();
+    UserSettings s;
 
     auto fileName = QFileDialog::getOpenFileName(
                 this,
                 tr("Open PID file (csv list)"),
-                cfg->stringValue(Configuration::Key::LastAccessedDirectory),
+                s.stringValue(CfgLastAccessedDirectory),
                 tr("CSV Files (*.csv);;All Files (*.*)")
                 );
 
@@ -220,19 +233,24 @@ void LoaderPage::onLoadButtonClicked()
         return;
 
     QFileInfo fi{fileName};
-    cfg->setValue(Configuration::Key::LastAccessedDirectory, fi.absolutePath());
+    s.setValue(CfgLastAccessedDirectory, fi.absolutePath());
 
-    readInput(fileName);
+    readInputFromFile(fileName);
+}
+
+void LoaderPage::onClearInputButtonClicked()
+{
+    // disabled for now
 }
 
 void LoaderPage::onSaveButtonClicked()
 {
-    auto cfg = app()->configuration();
+    UserSettings s;
 
     auto fileName = QFileDialog::getSaveFileName(
                 this,
                 tr("Save to patient data file (csv list)"),
-                cfg->stringValue(Configuration::Key::LastAccessedDirectory),
+                s.stringValue(CfgLastAccessedDirectory),
                 tr("CSV Files (*.csv);;All Files (*.*)")
                 );
 
@@ -240,7 +258,7 @@ void LoaderPage::onSaveButtonClicked()
         return;
 
     QFileInfo fi{fileName};
-    cfg->setValue(Configuration::Key::LastAccessedDirectory, fi.absolutePath());
+    s.setValue(CfgLastAccessedDirectory, fi.absolutePath());
 
     writeOutput(fileName);
 }
@@ -255,7 +273,7 @@ void LoaderPage::onSelectedEndpointChanged(int index)
     reloadFieldList(index);
 }
 
-void LoaderPage::readInput(const QString &fileName)
+void LoaderPage::readInputFromFile(const QString& fileName)
 {
     Q_ASSERT(mainWindow_);
     mainWindow_->showStatusMessage(tr("Loading PID file ..."));
@@ -269,6 +287,34 @@ void LoaderPage::readInput(const QString &fileName)
         {
             CsvReader csvReader{};
             result = csvReader.read(input, inputData_);
+        }
+
+        emit inputLoadingDone(result);
+    });
+}
+
+void LoaderPage::readInputFromClipboard()
+{
+    Q_ASSERT(mainWindow_);
+    mainWindow_->showStatusMessage(tr("Loading PIDs ..."));
+
+    app()->runJob([this]()
+    {
+        bool result{};
+
+        const QClipboard* clipboard = QApplication::clipboard();
+        const QMimeData* mimeData = clipboard->mimeData();
+
+        if (mimeData->hasText())
+        {
+            auto rawData = mimeData->data(QStringLiteral("text/plain"));
+            QBuffer input{&rawData};
+
+            if (input.open(QBuffer::ReadOnly))
+            {
+                CsvReader csvReader{};
+                result = csvReader.read(input, inputData_);
+            }
         }
 
         emit inputLoadingDone(result);
@@ -311,6 +357,10 @@ QStringList LoaderPage::makePidList()
 QStringList LoaderPage::makeFieldList()
 {
     auto fieldsSelection = ui->fields->selectionModel()->selection().indexes();
+    if (fieldsSelection.empty())
+    {
+        return ui->fields->items();
+    }
 
     QStringList fields;
     for (const auto& idx : fieldsSelection)

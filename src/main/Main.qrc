@@ -27,5 +27,9 @@
         <file>icons/breeze/actions/16/configure.svg</file>
         <file>icons/breeze/actions/22/configure.svg</file>
         <file>icons/breeze/actions/32/configure.svg</file>
+        <file>icons/breeze/actions/16/edit-paste.svg</file>
+        <file>icons/breeze/actions/22/edit-paste.svg</file>
+        <file>icons/breeze/actions/16/edit-delete.svg</file>
+        <file>icons/breeze/actions/22/edit-delete.svg</file>
     </qresource>
 </RCC>

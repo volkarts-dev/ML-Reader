@@ -29,10 +29,10 @@
    <item>
     <widget class="QFrame" name="frame">
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Shape::StyledPanel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
+      <enum>QFrame::Shadow::Sunken</enum>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
@@ -54,13 +54,13 @@
          </sizepolicy>
         </property>
         <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
+         <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
         </property>
         <property name="selectionMode">
-         <enum>QAbstractItemView::ExtendedSelection</enum>
+         <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
         </property>
         <property name="flow">
-         <enum>QListView::LeftToRight</enum>
+         <enum>QListView::Flow::LeftToRight</enum>
         </property>
         <property name="isWrapping" stdset="0">
          <bool>true</bool>
@@ -76,8 +76,7 @@
       <string>Load I-Data</string>
      </property>
      <property name="icon">
-      <iconset theme="go-jump">
-       <normaloff>.</normaloff>.</iconset>
+      <iconset theme="go-jump"/>
      </property>
      <property name="shortcut">
       <string>Ctrl+Return</string>
@@ -93,7 +92,7 @@
       </sizepolicy>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="handleWidth">
       <number>10</number>
@@ -106,10 +105,10 @@
        </sizepolicy>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::Shape::StyledPanel</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
+       <enum>QFrame::Shadow::Sunken</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
@@ -124,7 +123,7 @@
          <item>
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -135,16 +134,35 @@
           </spacer>
          </item>
          <item>
+          <widget class="QPushButton" name="pasteBtn">
+           <property name="text">
+            <string>Paste</string>
+           </property>
+           <property name="icon">
+            <iconset theme="edit-paste"/>
+           </property>
+           <property name="shortcut">
+            <string>Ctrl+V</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="loadBtn">
            <property name="text">
             <string>Load</string>
            </property>
            <property name="icon">
-            <iconset theme="document-open">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset theme="document-open"/>
            </property>
            <property name="shortcut">
             <string>Ctrl+O</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="clearInputBtn">
+           <property name="icon">
+            <iconset theme="edit-delete"/>
            </property>
           </widget>
          </item>
@@ -191,19 +209,19 @@
        <item>
         <widget class="QTableView" name="inputTable">
          <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
+          <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
          </property>
          <property name="alternatingRowColors">
           <bool>true</bool>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::NoSelection</enum>
+          <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
          </property>
          <property name="verticalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
+          <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
          </property>
          <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
+          <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
          </property>
         </widget>
        </item>
@@ -217,10 +235,10 @@
        </sizepolicy>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::Shape::StyledPanel</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
+       <enum>QFrame::Shadow::Sunken</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
@@ -235,7 +253,7 @@
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -251,8 +269,7 @@
             <string>Save</string>
            </property>
            <property name="icon">
-            <iconset theme="document-save">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset theme="document-save"/>
            </property>
            <property name="shortcut">
             <string>Ctrl+S</string>
@@ -292,19 +309,19 @@
        <item>
         <widget class="QTableView" name="outputTable">
          <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
+          <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
          </property>
          <property name="alternatingRowColors">
           <bool>true</bool>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::NoSelection</enum>
+          <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
          </property>
          <property name="verticalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
+          <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
          </property>
          <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
+          <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
          </property>
         </widget>
        </item>

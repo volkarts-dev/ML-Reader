@@ -31,7 +31,9 @@ signals:
 
 private slots:
     void onExecuteButtonClicked();
+    void onPasteButtonClicked();
     void onLoadButtonClicked();
+    void onClearInputButtonClicked();
     void onSaveButtonClicked();
     void onInputLoadingDone(bool result);
     void onOutputSavingDone(bool result);
@@ -45,7 +47,8 @@ private:
     void loadWidgetState();
     void saveWidgetState();
     void updateUiState();
-    void readInput(const QString& fileName);
+    void readInputFromFile(const QString& fileName);
+    void readInputFromClipboard();
     void writeOutput(const QString& fileName);
     QStringList makePidList();
     QStringList makeFieldList();
