@@ -182,19 +182,16 @@ void MainWindow::onActionAboutTriggerd()
 void MainWindow::onShowLoaderPageTriggered()
 {
     ui->functionStack->setCurrentIndex(toInt(Page::Loader));
-    setWindowTitle(tr("Loader - ML Client"));
 }
 
 void MainWindow::onShowQueryPageTriggered()
 {
     ui->functionStack->setCurrentIndex(toInt(Page::Query));
-    setWindowTitle(tr("Query - ML Client"));
 }
 
 void MainWindow::onShowEditPageTriggered()
 {
     ui->functionStack->setCurrentIndex(toInt(Page::Editor));
-    setWindowTitle(tr("Editor - ML Client"));
 }
 
 void MainWindow::onFunctionStackCurrentChanged(int index)
@@ -202,6 +199,19 @@ void MainWindow::onFunctionStackCurrentChanged(int index)
     ui->actionShowLoaderPage->setChecked(index == toInt(Page::Loader));
     ui->actionShowQueryPage->setChecked(index == toInt(Page::Query));
     ui->actionShowEditorPage->setChecked(index == toInt(Page::Editor));
+
+    if (index == toInt(Page::Loader))
+    {
+        setWindowTitle(tr("Loader - ML Client"));
+    }
+    else if (index == toInt(Page::Query))
+    {
+        setWindowTitle(tr("Query - ML Client"));
+    }
+    else if (index == toInt(Page::Editor))
+    {
+        setWindowTitle(tr("Editor - ML Client"));
+    }
 }
 
 void MainWindow::onSelectedEndpointChanged(int index)
