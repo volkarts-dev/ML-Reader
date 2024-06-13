@@ -97,7 +97,7 @@
      <property name="handleWidth">
       <number>10</number>
      </property>
-     <widget class="QFrame" name="inputArea">
+     <widget class="InputDropZone" name="inputArea">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -336,6 +336,12 @@
    <class>ListWidgetInput</class>
    <extends>QListWidget</extends>
    <header>ListWidgetInput.h</header>
+  </customwidget>
+  <customwidget>
+   <class>InputDropZone</class>
+   <extends>QFrame</extends>
+   <header>InputDropZone.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

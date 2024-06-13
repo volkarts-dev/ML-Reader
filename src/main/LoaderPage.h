@@ -10,6 +10,7 @@
 class DataModel;
 class MainWindow;
 class QDataWidgetMapper;
+class QMimeData;
 
 namespace Ui {
 class LoaderPage;
@@ -42,6 +43,7 @@ private slots:
     void onPatientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& patientData);
     void onEndpointConfigChanged();
     void onSelectedEndpointChanged(int index);
+    void onInputDataDropped(const QMimeData* mimeData);
 
 private:
     void loadWidgetState();
@@ -49,6 +51,7 @@ private:
     void updateUiState();
     void readInputFromFile(const QString& fileName);
     void readInputFromClipboard();
+    bool readInput(QIODevice& input);
     void writeOutput(const QString& fileName);
     QStringList makePidList();
     QStringList makeFieldList();

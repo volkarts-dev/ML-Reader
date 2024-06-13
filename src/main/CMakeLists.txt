@@ -1,8 +1,6 @@
 add_executable(mlreader
     Application.cpp
     Application.h
-    UserSettings.cpp
-    UserSettings.h
     CsvRawData.cpp
     CsvRawData.h
     CsvReader.cpp
@@ -26,6 +24,8 @@ add_executable(mlreader
     EndpointSelector.ui
     EndpointConfigItemDelegate.cpp
     EndpointConfigItemDelegate.h
+    InputDropZone.cpp
+    InputDropZone.h
     ListWidgetInput.cpp
     ListWidgetInput.h
     LoaderPage.cpp
@@ -46,6 +46,8 @@ add_executable(mlreader
     QueryPage.ui
     Tools.cpp
     Tools.h
+    UserSettings.cpp
+    UserSettings.h
     Version.h.in
 )
 

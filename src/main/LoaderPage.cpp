@@ -24,6 +24,7 @@
 
 namespace {
 
+const auto MimeTypeTextPlain = QStringLiteral("text/plain");
 const auto CfgPageSplitter= QStringLiteral("Window/LoaderPage/Splitter");
 
 } // namespace
@@ -74,6 +75,10 @@ void LoaderPage::initialize(MainWindow* mainWindow)
 
     connect(ui->pidColumnSelector, qOverload<int>(&QComboBox::currentIndexChanged),
             this, &LoaderPage::onPidColumSelectorChanged);
+
+    ui->inputArea->setAllowedDropActions(Qt::CopyAction | Qt::MoveAction);
+    ui->inputArea->setAllowedMimeTypes({MimeTypeTextPlain});
+    connect(ui->inputArea, &InputDropZone::dataDropped, this, &LoaderPage::onInputDataDropped);
 
     updateUiState();
 
@@ -273,6 +278,27 @@ void LoaderPage::onSelectedEndpointChanged(int index)
     reloadFieldList(index);
 }
 
+void LoaderPage::onInputDataDropped(const QMimeData* mimeData)
+{
+    Q_ASSERT(mainWindow_);
+    mainWindow_->showStatusMessage(tr("Loading PID data ..."));
+
+    if (!mimeData->hasText())
+        return;
+
+    auto rawData = mimeData->text();
+
+    app()->runJob([this, rawData]()
+    {
+        auto bytes = rawData.toUtf8();
+        QBuffer input{&bytes};
+
+        bool result = readInput(input);
+
+        emit inputLoadingDone(result);
+    });
+}
+
 void LoaderPage::readInputFromFile(const QString& fileName)
 {
     Q_ASSERT(mainWindow_);
@@ -280,14 +306,9 @@ void LoaderPage::readInputFromFile(const QString& fileName)
 
     app()->runJob([this, fileName]()
     {
-        bool result{};
-
         QFile input{fileName};
-        if (input.open(QFile::ReadOnly))
-        {
-            CsvReader csvReader{};
-            result = csvReader.read(input, inputData_);
-        }
+
+        bool result = readInput(input);
 
         emit inputLoadingDone(result);
     });
@@ -296,29 +317,36 @@ void LoaderPage::readInputFromFile(const QString& fileName)
 void LoaderPage::readInputFromClipboard()
 {
     Q_ASSERT(mainWindow_);
-    mainWindow_->showStatusMessage(tr("Loading PIDs ..."));
+    mainWindow_->showStatusMessage(tr("Loading PID data ..."));
 
-    app()->runJob([this]()
+    const QClipboard* clipboard = QApplication::clipboard();
+    const QMimeData* mimeData = clipboard->mimeData();
+
+    if (!mimeData->hasText())
+        return;
+
+    auto rawData = mimeData->text();
+
+    app()->runJob([this, rawData]()
     {
-        bool result{};
+        auto bytes = rawData.toUtf8();
+        QBuffer input{&bytes};
 
-        const QClipboard* clipboard = QApplication::clipboard();
-        const QMimeData* mimeData = clipboard->mimeData();
-
-        if (mimeData->hasText())
-        {
-            auto rawData = mimeData->data(QStringLiteral("text/plain"));
-            QBuffer input{&rawData};
-
-            if (input.open(QBuffer::ReadOnly))
-            {
-                CsvReader csvReader{};
-                result = csvReader.read(input, inputData_);
-            }
-        }
+        bool result = readInput(input);
 
         emit inputLoadingDone(result);
     });
+}
+
+bool LoaderPage::readInput(QIODevice& input)
+{
+    if (input.open(QBuffer::ReadOnly))
+    {
+        CsvReader csvReader{};
+        return csvReader.read(input, inputData_);
+    }
+
+    return false;
 }
 
 void LoaderPage::writeOutput(const QString &fileName)
