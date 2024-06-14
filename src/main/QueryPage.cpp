@@ -19,7 +19,7 @@
 
 namespace {
 
-const auto CfgPageSplitter= QString("Window/QueryPage/Splitter");
+const auto CfgPageSplitter= QStringLiteral("Window/QueryPage/Splitter");
 
 } // namespace
 

@@ -9,7 +9,7 @@
 
 namespace {
 
-const auto CfgEndpoints = QString("Endpoints");
+const auto CfgEndpoints = QStringLiteral("Endpoints");
 
 } // namespace
 

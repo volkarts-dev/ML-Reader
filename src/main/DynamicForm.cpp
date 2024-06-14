@@ -3,6 +3,7 @@
 
 #include "DynamicForm.h"
 
+#include "Tools.h"
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -43,7 +44,7 @@ void DynamicForm::reset(const QList<Field>& fields)
     for (const auto& field : fields)
     {
         auto caption = new QLabel{this};
-        caption->setObjectName(field.name() + "_caption");
+        caption->setObjectName(field.name() + "_caption"_l1);
         caption->setText(field.caption());
 
         auto input = new QLineEdit{this};

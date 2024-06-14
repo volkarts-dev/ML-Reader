@@ -9,12 +9,12 @@
 
 namespace {
 
-const auto CfgUuid = QString("Uuid");
-const auto CfgName = QString("Name");
-const auto CfgBaseURL = QString("BaseURL");
-const auto CfgApiVersion = QString("ApiVersion");
-const auto CfgFields = QString("Fields");
-const auto CfgSaveApiKey = QString("SaveApiKey");
+const auto CfgUuid = QStringLiteral("Uuid");
+const auto CfgName = QStringLiteral("Name");
+const auto CfgBaseURL = QStringLiteral("BaseURL");
+const auto CfgApiVersion = QStringLiteral("ApiVersion");
+const auto CfgFields = QStringLiteral("Fields");
+const auto CfgSaveApiKey = QStringLiteral("SaveApiKey");
 
 QString stripTrailingSlash(QString url)
 {

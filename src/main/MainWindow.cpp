@@ -20,10 +20,11 @@
 
 namespace {
 
-const auto CfgWindowGeometry = QString("Window/Main/Geometry");
-const auto CfgWindowState = QString("Window/Main/State");
-const auto CfgWindowSelectedEndpoint = QString("Window/Main/SelectedEndpoint");
-const auto CfgWindowFunctionPage = QString("Window/Main/FunctionPage");
+const auto CfgWindowGeometry = QStringLiteral("Window/Main/Geometry");
+const auto CfgWindowState = QStringLiteral("Window/Main/State");
+const auto CfgWindowSelectedEndpoint = QStringLiteral("Window/Main/SelectedEndpoint");
+const auto CfgWindowFunctionPage = QStringLiteral("Window/Main/FunctionPage");
+const auto CfgWindowMainSplitter= QStringLiteral("Window/Main/MainSplitter");
 
 } // namespace
 
@@ -54,19 +55,20 @@ bool MainWindow::initialize()
 
     ui->mainSplitter->setStretchFactor(ui->mainSplitter->indexOf(ui->functionStack), 10);
     ui->mainSplitter->setStretchFactor(ui->mainSplitter->indexOf(ui->logOutput), 1);
+
     connect(ui->endpointSelector, &EndpointSelector::selectedEndpointChanged,
             this, &MainWindow::onSelectedEndpointChanged);
     connect(this, &MainWindow::endpointConfigChanged, ui->endpointSelector, &EndpointSelector::onEndpointConfigChanged);
 
-    ui->functionStack->setTabIcon(toInt(Page::Loader), QIcon::fromTheme("download"));
-    ui->functionStack->setTabIcon(toInt(Page::Query), QIcon::fromTheme("system-search"));
-    ui->functionStack->setTabIcon(toInt(Page::Editor), QIcon::fromTheme("document-edit"));
+    ui->functionStack->setTabIcon(toInt(Page::Loader), QIcon::fromTheme(QStringLiteral("download")));
+    ui->functionStack->setTabIcon(toInt(Page::Query), QIcon::fromTheme(QStringLiteral("system-search")));
+    ui->functionStack->setTabIcon(toInt(Page::Editor), QIcon::fromTheme(QStringLiteral("document-edit")));
 
-    ui->actionEndpointConfigEdit->setIcon(QIcon::fromTheme("configure"));
-    ui->actionQuit->setIcon(QIcon::fromTheme("application-exit"));
-    ui->actionShowLoaderPage->setIcon(QIcon::fromTheme("download"));
-    ui->actionShowQueryPage->setIcon(QIcon::fromTheme("system-search"));
-    ui->actionShowEditorPage->setIcon(QIcon::fromTheme("document-edit"));
+    ui->actionEndpointConfigEdit->setIcon(QIcon::fromTheme(QStringLiteral("configure")));
+    ui->actionQuit->setIcon(QIcon::fromTheme(QStringLiteral("application-exit")));
+    ui->actionShowLoaderPage->setIcon(QIcon::fromTheme(QStringLiteral("download")));
+    ui->actionShowQueryPage->setIcon(QIcon::fromTheme(QStringLiteral("system-search")));
+    ui->actionShowEditorPage->setIcon(QIcon::fromTheme(QStringLiteral("document-edit")));
 
     connect(ui->actionEndpointConfigEdit, &QAction::triggered, this, &MainWindow::onActionEndpointConfigEdit);
     connect(ui->actionQuit, &QAction::triggered, this, &MainWindow::onActionQuitTriggerd);
@@ -212,10 +214,10 @@ void MainWindow::onActionAboutTriggerd()
                            "Version: %2-%3\n"
                            "Date: %4"
                            ).arg(
-                           time.toString("yyyy"),
+                           time.toString(QStringLiteral("yyyy")),
                            APPLICATION_VERSION,
                            GIT_VERSION,
-                           time.toString("yyyy-MM-dd hh:mm")
+                           time.toString(QStringLiteral("yyyy-MM-dd hh:mm"))
                            ));
 }
 

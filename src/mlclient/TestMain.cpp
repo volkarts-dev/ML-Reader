@@ -16,8 +16,8 @@ int main(int argc, char* argv[])
         QStringLiteral("mainzelliste"),
     };
 
-    QStringList pids{"ZPU3P1W3", "EL8F3DNC"};
-    QStringList fields{"vorname", "nachname"};
+    QStringList pids{QStringLiteral("ZPU3P1W3"), QStringLiteral("EL8F3DNC")};
+    QStringList fields{QStringLiteral("vorname"), QStringLiteral("nachname")};
 
     QObject::connect(&client, &MlClient::patientDataLoadingDone, &client,
                      [] (const MlClient::Error& error, const MlClient::PatientData& data) {

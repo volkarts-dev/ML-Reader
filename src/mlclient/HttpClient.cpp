@@ -101,7 +101,7 @@ void HttpClient::onSslErrors(QNetworkReply* reply, const QList<QSslError>& error
     QString errorString;
     for (const QSslError &error : errors) {
         if (!errorString.isEmpty())
-            errorString += '\n';
+            errorString += QLatin1Char('\n');
         errorString += error.errorString();
     }
 
