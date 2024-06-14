@@ -55,14 +55,16 @@ private:
                 const MlClient::Error err{statusCode != 404 ?
                                 messageFromServer : tr("Mainzelliste not found on server. Check the BaseURL.")};
                 emit finished(err, {});
-                return;
             }
+            else
+            {
+                auto responseObject = response->body().toJsonObject();
 
-            auto responseObject = response->body().toJsonObject();
+                sessionId_ = responseObject["sessionId"_l1].toString();
 
-            sessionId_ = responseObject["sessionId"_l1].toString();
 
-            createToken();
+                createToken();
+            }
 
             response->deleteLater();
         });
@@ -89,14 +91,16 @@ private:
 
                 const MlClient::Error err{messageFromServer};
                 emit finished(err, {});
-                return;
             }
+            else
+            {
+                auto responseObject = response->body().toJsonObject();
 
-            auto responseObject = response->body().toJsonObject();
+                tokenId_ = responseObject["id"_l1].toString();
 
-            tokenId_ = responseObject["id"_l1].toString();
 
-            doActualRequest();
+                doActualRequest();
+            }
 
             response->deleteLater();
         });
@@ -199,16 +203,17 @@ public:
                                                 messageFromServer << "\n<<<";
 
                 emit finished(messageFromServer, {});
-                return;
             }
+            else
+            {
+                auto responseObject = response->body().toJsonArray();
 
-            auto responseObject = response->body().toJsonArray();
+                auto patientData = parseResponse(responseObject);
 
-            auto patientData = parseResponse(responseObject);
 
-            emit finished({}, QVariant::fromValue(patientData));
+                emit finished({}, QVariant::fromValue(patientData));
 
-            deleteSession();
+                deleteSession();
 
             response->deleteLater();
         });
@@ -299,24 +304,26 @@ public:
                                                 messageFromServer << "\n<<<";
 
                 emit finished(messageFromServer, {});
-                return;
-            }
-
-            MlClient::QueryResult queryResult;
-
-            const auto returnValue = response->body().toJson();
-            if (returnValue.isArray())
-            {
-                parseResponse(queryResult, returnValue.array());
             }
             else
             {
-                parseConflictResponse(queryResult, returnValue.object());
+                MlClient::QueryResult queryResult;
+
+                const auto returnValue = response->body().toJson();
+                if (returnValue.isArray())
+                {
+                    parseResponse(queryResult, returnValue.array());
+                }
+                else
+                {
+                    parseConflictResponse(queryResult, returnValue.object());
+                }
+
+
+                emit finished({}, QVariant::fromValue(queryResult));
+
+                deleteSession();
             }
-
-            emit finished({}, QVariant::fromValue(queryResult));
-
-            deleteSession();
 
             response->deleteLater();
         });
@@ -403,12 +410,14 @@ public:
                                                 messageFromServer << "\n<<<";
 
                 emit finished(messageFromServer, {});
-                return;
             }
+            else
+            {
 
-            emit finished({}, {});
+                emit finished({}, {});
 
-            deleteSession();
+                deleteSession();
+            }
 
             response->deleteLater();
         });
