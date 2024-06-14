@@ -214,7 +214,8 @@ void LoaderPage::onExecuteButtonClicked()
     executionTimer_.restart();
 
     auto mlClient = createMlClient(mainWindow_->endpointSelector()->selectedEndpoint(),
-                                   mainWindow_->endpointSelector()->currentApiKey());
+                                   mainWindow_->endpointSelector()->currentApiKey(),
+                                   mainWindow_, &MainWindow::logMessage);
     mlClientLoadPatientData(mlClient, makePidList(), fieldList, this, &LoaderPage::onPatientDataLoadingDone);
 }
 

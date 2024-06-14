@@ -6,8 +6,19 @@
 #include "MlClient.h"
 #include <QObject>
 
-MlClient* createMlClient(int endpointIndex, const QString& apiKey);
+MlClient* createMlClientIntern(int endpointIndex, const QString& apiKey);
 void deleteSenderMlClient(QObject* sender);
+
+template<typename Callback>
+MlClient* createMlClient(int endpointIndex, const QString& apiKey,
+                         const typename QtPrivate::FunctionPointer<Callback>::Object* target,
+                         Callback callback)
+
+{
+    auto* mlClient = createMlClientIntern(endpointIndex, apiKey);
+    QObject::connect(mlClient, &MlClient::logMessage, target, callback);
+    return mlClient;
+}
 
 template<typename Callback>
 inline void mlClientLoadPatientData(MlClient* mlClient, const QStringList& pidList, const QStringList& fieldList,

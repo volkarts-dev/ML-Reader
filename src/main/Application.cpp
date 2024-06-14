@@ -7,6 +7,7 @@
 #include "EndpointConfigModel.h"
 #include "PasswordStore.h"
 #include "UserSettings.h"
+#include <QLoggingCategory>
 #include <QThreadPool>
 
 namespace {
@@ -26,7 +27,11 @@ Application::Application(int& argc, char** argv) :
     Q_ASSERT(!gApp);
     gApp = this;
 
-    qSetMessagePattern("%{category} [%{type}] %{message}");
+    QLoggingCategory::setFilterRules(QStringLiteral(
+                "*.debug=false\n"
+                "va.*=true\n"
+                ));
+    qSetMessagePattern(QStringLiteral("%{time} [%{type}] %{category} - %{message}"));
 
     Application::setApplicationName(QStringLiteral("mlreader"));
     Application::setOrganizationName(QStringLiteral("volkarts.com"));

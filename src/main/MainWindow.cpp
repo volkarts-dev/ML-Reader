@@ -15,6 +15,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QScrollBar>
 #include <QThreadPool>
 
 namespace {
@@ -51,6 +52,8 @@ bool MainWindow::initialize()
     ui->queryPage->initialize(this);
     ui->editorPage->initialize(this);
 
+    ui->mainSplitter->setStretchFactor(ui->mainSplitter->indexOf(ui->functionStack), 10);
+    ui->mainSplitter->setStretchFactor(ui->mainSplitter->indexOf(ui->logOutput), 1);
     connect(ui->endpointSelector, &EndpointSelector::selectedEndpointChanged,
             this, &MainWindow::onSelectedEndpointChanged);
     connect(this, &MainWindow::endpointConfigChanged, ui->endpointSelector, &EndpointSelector::onEndpointConfigChanged);
@@ -110,12 +113,48 @@ void MainWindow::openPage(Page page, const QVariant& openData)
     }
 }
 
+void MainWindow::logMessage(QtMsgType type, const QString& message)
+{
+    QString string;
+
+    switch (type)
+    {
+        case QtDebugMsg:
+            string += QStringLiteral("<span style='color: gray'>[DEBUG]&nbsp;");
+            break;
+        case QtInfoMsg:
+            string += QStringLiteral("<span style=''>[INFO]&nbsp;&nbsp;");
+            break;
+        case QtWarningMsg:
+            string += QStringLiteral("<span style='color: yellow'>[WARN]&nbsp;&nbsp;");
+            break;
+        case QtCriticalMsg:
+            string += QStringLiteral("<span style='color: red'>[ERROR]&nbsp;");
+            break;
+        case QtFatalMsg:
+            string += QStringLiteral("<span style='color: purple'>[FATAL]&nbsp;");
+            break;
+    }
+
+    string += message + QStringLiteral("</span>");
+
+    auto* scrollBar = ui->logOutput->verticalScrollBar();
+    bool scrollbarAtBottom  = (scrollBar->value() >= (scrollBar->maximum() - 10));
+
+    ui->logOutput->appendHtml(string);
+
+    if (scrollbarAtBottom)
+        scrollBar->setValue(scrollBar->maximum());
+}
+
 void MainWindow::loadMainWindowState()
 {
     UserSettings s;
 
     restoreGeometry(s.value(CfgWindowGeometry).toByteArray());
     restoreState(s.value(CfgWindowState).toByteArray());
+
+    restoreSplitterState(ui->mainSplitter, s.value(CfgWindowMainSplitter).toByteArray());
 
     ui->endpointSelector->setSelectedEndpoint(
                 indexClamp(s.value(CfgWindowSelectedEndpoint).toInt(),
@@ -136,6 +175,7 @@ void MainWindow::saveMainWindowState()
     s.setValue(CfgWindowState, saveState());
     s.setValue(CfgWindowSelectedEndpoint, ui->endpointSelector->selectedEndpoint());
     s.setValue(CfgWindowFunctionPage, ui->functionStack->currentIndex());
+    s.setValue(CfgWindowMainSplitter, saveSplitterState(ui->mainSplitter));
 }
 
 void MainWindow::updateUi()

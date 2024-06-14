@@ -9,7 +9,7 @@
 #include "Tools.h"
 #include <QVersionNumber>
 
-MlClient* createMlClient(int endpointIndex, const QString& apiKey)
+MlClient* createMlClientIntern(int endpointIndex, const QString& apiKey)
 {
     const auto model = app()->endpointConfigModel();
 

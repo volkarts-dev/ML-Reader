@@ -90,7 +90,8 @@ void QueryPage::execute(bool sureness)
     setEnabled(false);
 
     auto mlClient = createMlClient(mainWindow_->endpointSelector()->selectedEndpoint(),
-                                   mainWindow_->endpointSelector()->currentApiKey());
+                                   mainWindow_->endpointSelector()->currentApiKey(),
+                                   mainWindow_, &MainWindow::logMessage);
     mlClientQueryPatientData(mlClient, ui->patientDataForm->extractFormData(), sureness,
                              this, &QueryPage::onPatientDataQueringDone);
 }
@@ -218,7 +219,8 @@ void QueryPage::onPatientDataQueringDone(const MlClient::Error& error, const MlC
             ui->possibleMatchesPane->setVisible(true);
 
             auto mlClient = createMlClient(mainWindow_->endpointSelector()->selectedEndpoint(),
-                                           mainWindow_->endpointSelector()->currentApiKey());
+                                           mainWindow_->endpointSelector()->currentApiKey(),
+                                           mainWindow_, &MainWindow::logMessage);
             mlClientLoadPatientData(mlClient, result.possibleMatchPids,
                                     mainWindow_->endpointSelector()->currentFieldList(),
                                      this, &QueryPage::onPatientDataLoadingDone);

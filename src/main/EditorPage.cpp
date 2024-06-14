@@ -99,7 +99,8 @@ void EditorPage::startEditing()
     QStringList pidList{pid};
 
     auto mlClient = createMlClient(mainWindow_->endpointSelector()->selectedEndpoint(),
-                                   mainWindow_->endpointSelector()->currentApiKey());
+                                   mainWindow_->endpointSelector()->currentApiKey(),
+                                   mainWindow_, &MainWindow::logMessage);
     mlClientLoadPatientData(mlClient, pidList, mainWindow_->endpointSelector()->currentFieldList(),
                             this, &EditorPage::onPatientDataLoadingDone);
 }
@@ -133,7 +134,8 @@ void EditorPage::onSaveBtnClicked()
     Q_ASSERT(!loadedPatientPid_.isEmpty());
 
     auto mlClient = createMlClient(mainWindow_->endpointSelector()->selectedEndpoint(),
-                                   mainWindow_->endpointSelector()->currentApiKey());
+                                   mainWindow_->endpointSelector()->currentApiKey(),
+                                   mainWindow_, &MainWindow::logMessage);
     mlClientEditPatientData(mlClient, loadedPatientPid_,
                             ui->patientDataForm->extractFormData(DynamicForm::Filter::Modified),
                             this, &EditorPage::onPatientDataEditingDone);

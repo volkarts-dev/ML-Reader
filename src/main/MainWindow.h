@@ -35,6 +35,9 @@ public:
     void showStatusMessage(const QString& message, int timeout = 0);
     void openPage(Page page, const QVariant& openData);
 
+public slots:
+    void logMessage(QtMsgType type, const QString& message);
+
 signals:
     void endpointConfigChanged();
     void selectedEndpointChanged(int index);
