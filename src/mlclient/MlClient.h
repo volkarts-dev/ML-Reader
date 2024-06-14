@@ -47,6 +47,8 @@ public:
     bool askRecoverableError(const QString& title, const QString& message) override;
 
 signals:
+    void logMessage(QtMsgType type, const QString& message);
+
     void patientDataLoadingDone(const MlClient::Error& error, const MlClient::PatientData& data);
     void patientDataQueringDone(const MlClient::Error& error, const MlClient::QueryResult& result);
     void patientDataEditingDone(const MlClient::Error& error);

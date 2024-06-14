@@ -31,11 +31,36 @@ public:
     }
 
 signals:
+    void logMessage(QtMsgType type, const QString& message);
     void finished(const MlClient::Error& error, const QVariant& data);
+
+protected:
+    void logInfo(const QString& msg)
+    {
+        qCDebug(MLC_LOG_CAT).nospace().noquote() << msg;
+
+        emit logMessage(QtInfoMsg, msg);
+    }
+
+    void logError(const QString& prefix, QNetworkReply::NetworkError error, int statusCode, const QString& msg)
+    {
+        QString message = prefix;
+        message += QStringLiteral(": %1 (%2) ").arg(QString::number(statusCode), QString::number(error));
+        message += msg;
+
+        qCWarning(MLC_LOG_CAT)
+                .nospace().noquote() << "Failed to create session. " <<
+                                        "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
+                                        message << "\n<<<";
+
+        emit logMessage(QtCriticalMsg, message);
+    }
 
 private:
     void createSession()
     {
+        logInfo("Create session"_l1);
+
         QString path = "/sessions"_l1;
 
         auto response = startRequest(HttpRequest::Method::POST, path, {});
@@ -47,10 +72,7 @@ private:
             {
                 const auto messageFromServer = errorMessage(response);
 
-                qCWarning(MLC_LOG_CAT)
-                        .nospace().noquote() << "Failed to create session. " <<
-                                                "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
-                                                messageFromServer << "\n<<<";
+                logError("Failed to create session"_l1, error, statusCode, messageFromServer);
 
                 const MlClient::Error err{statusCode != 404 ?
                                 messageFromServer : tr("Mainzelliste not found on server. Check the BaseURL.")};
@@ -62,6 +84,7 @@ private:
 
                 sessionId_ = responseObject["sessionId"_l1].toString();
 
+                logInfo("Session created: %1"_l1.arg(sessionId_));
 
                 createToken();
             }
@@ -72,6 +95,8 @@ private:
 
     void createToken()
     {
+        logInfo("Create token"_l1);
+
         QString path = "/sessions/"_l1 + sessionId_ + "/tokens"_l1;
         auto body = HttpBody::fromJson(createTokenObject());
 
@@ -84,10 +109,7 @@ private:
             {
                 const auto messageFromServer = errorMessage(response);
 
-                qCWarning(MLC_LOG_CAT)
-                        .nospace().noquote() << "Failed to create token. " <<
-                                                "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
-                                                messageFromServer << "\n<<<";
+                logError("Failed to create token"_l1, error, statusCode, messageFromServer);
 
                 const MlClient::Error err{messageFromServer};
                 emit finished(err, {});
@@ -98,6 +120,7 @@ private:
 
                 tokenId_ = responseObject["id"_l1].toString();
 
+                logInfo("Token created %1"_l1.arg(tokenId_));
 
                 doActualRequest();
             }
@@ -109,6 +132,8 @@ private:
 protected:
     void deleteSession()
     {
+        logInfo("Delete session %1"_l1.arg(sessionId_));
+
         QString path = "/sessions/"_l1 + sessionId_;
 
         auto response = startRequest(HttpRequest::Method::DELETE, path, {});
@@ -120,10 +145,11 @@ protected:
             {
                 const auto messageFromServer = errorMessage(response);
 
-                qCWarning(MLC_LOG_CAT)
-                        .nospace().noquote() << "Failed to delete session. " <<
-                                                "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
-                                                messageFromServer << "\n<<<";
+                logError("Failed to delete session"_l1, error, statusCode, messageFromServer);
+            }
+            else
+            {
+                logInfo("Session deleted"_l1.arg(sessionId_));
             }
 
             response->deleteLater();
@@ -185,6 +211,8 @@ public:
 
     void doActualRequest() override
     {
+        logInfo("Load patient data for %1"_l1.arg(tokenId()));
+
         QString path = "/patients"_l1;
         QUrlQuery query{{QStringLiteral("tokenId"), tokenId()}};
 
@@ -197,10 +225,7 @@ public:
             {
                 const auto messageFromServer = errorMessage(response);
 
-                qCWarning(MLC_LOG_CAT)
-                        .nospace().noquote() << "Failed to get patient data. " <<
-                                                "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
-                                                messageFromServer << "\n<<<";
+                logError("Failed to get patient data"_l1, error, statusCode, messageFromServer);
 
                 emit finished(messageFromServer, {});
             }
@@ -210,10 +235,12 @@ public:
 
                 auto patientData = parseResponse(responseObject);
 
+                logInfo("Patient data loaded for %1"_l1.arg(tokenId()));
 
                 emit finished({}, QVariant::fromValue(patientData));
 
                 deleteSession();
+            }
 
             response->deleteLater();
         });
@@ -285,6 +312,8 @@ public:
 
     void doActualRequest() override
     {
+        logInfo("Query patient for %1"_l1.arg(tokenId()));
+
         QString path = "/patients"_l1;
         QUrlQuery query{{QStringLiteral("tokenId"), tokenId()}};
         auto body = HttpBody::urlEncodedFromHash(patientData_);
@@ -298,10 +327,7 @@ public:
             {
                 const auto messageFromServer = errorMessage(response);
 
-                qCWarning(MLC_LOG_CAT)
-                        .nospace().noquote() << "Failed to query patient data. " <<
-                                                "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
-                                                messageFromServer << "\n<<<";
+                logError("Failed to query patient data"_l1, error, statusCode, messageFromServer);
 
                 emit finished(messageFromServer, {});
             }
@@ -319,6 +345,7 @@ public:
                     parseConflictResponse(queryResult, returnValue.object());
                 }
 
+                logInfo("Patient queried for %1"_l1.arg(tokenId()));
 
                 emit finished({}, QVariant::fromValue(queryResult));
 
@@ -392,6 +419,8 @@ public:
 
     void doActualRequest() override
     {
+        logInfo("Edit patient for %1"_l1.arg(tokenId()));
+
         QString path = "/patients/tokenId/"_l1 + tokenId();
         auto body = HttpBody::jsonObjectFromHash(patientData_);
 
@@ -404,15 +433,13 @@ public:
             {
                 const auto messageFromServer = errorMessage(response);
 
-                qCWarning(MLC_LOG_CAT)
-                        .nospace().noquote() << "Failed to edit patient data. " <<
-                                                "Error:" << error << ", Status:" << statusCode << "\n>>>\n" <<
-                                                messageFromServer << "\n<<<";
+                logError("Failed to edit patient data"_l1, error, statusCode, messageFromServer);
 
                 emit finished(messageFromServer, {});
             }
             else
             {
+                logInfo("Patient edited for %1"_l1.arg(tokenId()));
 
                 emit finished({}, {});
 
@@ -452,6 +479,7 @@ MlClient::MlClient(QString baseUrl, QVersionNumber apiVersion, QString apiKey, Q
 void MlClient::loadPatientData(const QStringList& pids, const QStringList& fields)
 {
     auto conversation = new LoadPatientDataConversation(apiVersion_, pids, fields, this, this);
+    connect(conversation, &LoadPatientDataConversation::logMessage, this, &MlClient::logMessage);
     connect(conversation, &LoadPatientDataConversation::finished,
             this, [this](const Error& error, const QVariant& data) {
         Q_ASSERT(data.isNull() || data.canConvert<PatientData>());
@@ -464,6 +492,7 @@ void MlClient::loadPatientData(const QStringList& pids, const QStringList& field
 void MlClient::queryPatientData(const QHash<QString, QString>& patientData, bool sureness)
 {
     auto conversation = new QueryPatientDataConversation(apiVersion_, patientData, sureness, this, this);
+    connect(conversation, &LoadPatientDataConversation::logMessage, this, &MlClient::logMessage);
     connect(conversation, &QueryPatientDataConversation::finished,
             this, [this](const Error& error, const QVariant& data) {
         Q_ASSERT(data.isNull() || data.canConvert<QueryResult>());
@@ -476,6 +505,7 @@ void MlClient::queryPatientData(const QHash<QString, QString>& patientData, bool
 void MlClient::editPatientData(const QString& pid, const QHash<QString, QString>& patientData)
 {
     auto conversation = new EditPatientDataConversation(apiVersion_, pid, patientData, this, this);
+    connect(conversation, &LoadPatientDataConversation::logMessage, this, &MlClient::logMessage);
     connect(conversation, &EditPatientDataConversation::finished,
             this, [this](const Error& error, const QVariant& data) {
         Q_UNUSED(data);
@@ -505,8 +535,8 @@ HttpRequest MlClient::createRequest(HttpRequest::Method method, const QString& p
     url.setQuery(urlQuery);
 
     HttpRequest req(method, url);
-    req.addHeader("mainzellisteApiKey", apiKey_);
-    req.addHeader("mainzellisteApiVersion", apiVersion_.toString());
+    req.addHeader(QStringLiteral("mainzellisteApiKey"), apiKey_);
+    req.addHeader(QStringLiteral("mainzellisteApiVersion"), apiVersion_.toString());
 
     req.setBody(body);
 
