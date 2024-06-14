@@ -8,7 +8,13 @@
 
 Q_DECLARE_LOGGING_CATEGORY(MLR_LOG_CAT)
 
-int indexClamp(int value, int max, int min = -1);
+class QSplitter;
+class UserSettings;
+
+inline int indexClamp(int value, int max, int min = -1)
+{
+    return qMin(max, qMax(min, value));
+}
 
 template<typename T>
 inline int toInt(T value)
@@ -20,3 +26,6 @@ inline QLatin1String operator""_l1(const char* string, size_t size)
 {
     return QLatin1String{string, static_cast<int>(size)};
 }
+
+QByteArray saveSplitterState(const QSplitter* splitter);
+bool restoreSplitterState(QSplitter* splitter, const QByteArray& data);

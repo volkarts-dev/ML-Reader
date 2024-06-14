@@ -3,9 +3,33 @@
 
 #include "Tools.h"
 
+#include <QDataStream>
+#include <QSplitter>
+
 Q_LOGGING_CATEGORY(MLR_LOG_CAT, "va.mlreader", QtMsgType::QtDebugMsg)
 
-int indexClamp(int value, int max, int min)
+QByteArray saveSplitterState(const QSplitter* splitter)
 {
-    return qMin(max, qMax(min, value));
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+
+    stream << splitter->sizes();
+
+    return data;
+}
+
+bool restoreSplitterState(QSplitter* splitter, const QByteArray& data)
+{
+    QByteArray wd = data;
+    QDataStream stream(&wd, QIODevice::ReadOnly);
+
+    QList<int> sizes;
+    stream >> sizes;
+
+    if (splitter->count() > sizes.count())
+        return false;
+
+    splitter->setSizes(sizes);
+
+    return true;
 }

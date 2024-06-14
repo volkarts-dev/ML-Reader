@@ -92,14 +92,14 @@ void LoaderPage::loadWidgetState()
 {
     UserSettings s;
 
-    ui->splitter->restoreState(s.value(CfgPageSplitter).toByteArray());
+    restoreSplitterState(ui->splitter, s.value(CfgPageSplitter).toByteArray());
 }
 
 void LoaderPage::saveWidgetState()
 {
     UserSettings s;
 
-    s.setValue(CfgPageSplitter, ui->splitter->saveState());
+    s.setValue(CfgPageSplitter, saveSplitterState(ui->splitter));
 }
 
 void LoaderPage::updateUiState()

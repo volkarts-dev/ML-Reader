@@ -68,14 +68,14 @@ void QueryPage::loadWidgetState()
 {
     UserSettings s;
 
-    ui->splitter->restoreState(s.value(CfgPageSplitter).toByteArray());
+    restoreSplitterState(ui->splitter, s.value(CfgPageSplitter).toByteArray());
 }
 
 void QueryPage::saveWidgetState()
 {
     UserSettings s;
 
-    s.setValue(CfgPageSplitter, ui->splitter->saveState());
+    s.setValue(CfgPageSplitter, saveSplitterState(ui->splitter));
 }
 
 void QueryPage::updateUiState()
