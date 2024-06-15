@@ -17,13 +17,13 @@ add_executable(mlreader
     EndpointConfigEditDlg.cpp
     EndpointConfigEditDlg.h
     EndpointConfigEditDlg.ui
+    EndpointConfigItemDelegate.cpp
+    EndpointConfigItemDelegate.h
     EndpointConfigModel.cpp
     EndpointConfigModel.h
     EndpointSelector.cpp
     EndpointSelector.h
     EndpointSelector.ui
-    EndpointConfigItemDelegate.cpp
-    EndpointConfigItemDelegate.h
     InputDropZone.cpp
     InputDropZone.h
     ListWidgetInput.cpp
