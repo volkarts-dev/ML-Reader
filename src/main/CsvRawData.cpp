@@ -33,12 +33,12 @@ bool CsvRawData::isEmpty() const
     return skipFirstRow_ ? rawData_.count() <= 1 : rawData_.isEmpty();
 }
 
-int CsvRawData::rowCount() const
+qsizetype CsvRawData::rowCount() const
 {
     return qMax(0, rawData_.count() - (skipFirstRow_ ? 1 : 0));
 }
 
-QStringList CsvRawData::rowValues(const int& row) const
+QList<QString> CsvRawData::rowValues(qsizetype row) const
 {
     return rawData_[row + (skipFirstRow_ ? 1 : 0)];
 }

@@ -22,10 +22,14 @@ bool CsvReader::read(QIODevice& input, DataModel* model)
 
     CsvRawData dataAdapter{};
 
-    auto codec = QTextCodec::codecForName(s.stringValue(CfgCsvColumnSeparator).toLatin1());
+    auto codec = QStringConverter::encodingForName(s.stringValue(CfgCsvCodec).toUtf8());
+    if (!codec.has_value())
+        codec = QStringConverter::encodingForName(CfgCsvDefaultCodec.toUtf8());
+    Q_ASSERT(codec.has_value());
+
     auto result = QtCSV::Reader::readToData(
                 input, dataAdapter, s.stringValue(CfgCsvColumnSeparator),
-                s.stringValue(CfgCsvQuotingCharacter), codec);
+                s.stringValue(CfgCsvQuotingCharacter), codec.value());
 
     if (result)
         model->setModelData(dataAdapter.data());
@@ -41,8 +45,12 @@ bool CsvReader::write(QIODevice& output, bool withHeader, DataModel* model)
 
     CsvRawData dataAdapter{model->modelData(), !withHeader};
 
-    auto codec = QTextCodec::codecForName(s.stringValue(CfgCsvColumnSeparator).toLatin1());
+    auto codec = QStringConverter::encodingForName(s.stringValue(CfgCsvColumnSeparator).toUtf8());
+    if (!codec.has_value())
+        codec = QStringConverter::encodingForName(CfgCsvDefaultCodec.toUtf8());
+    Q_ASSERT(codec.has_value());
+
     return QtCSV::Writer::write(
                 output, dataAdapter, s.stringValue(CfgCsvColumnSeparator),
-                s.stringValue(CfgCsvQuotingCharacter), {}, {}, codec);
+                s.stringValue(CfgCsvQuotingCharacter), {}, {}, codec.value());
 }

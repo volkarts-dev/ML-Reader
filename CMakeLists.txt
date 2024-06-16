@@ -21,7 +21,7 @@ add_library(project_config INTERFACE)
 set_compiler_warnings(project_config INTERFACE)
 target_compile_features(project_config INTERFACE cxx_std_20)
 
-include(LoadQt5)
+include(LoadQt)
 include(LoadQtcsv)
 include(LoadQtKeychain)
 

@@ -29,7 +29,7 @@ int EndpointConfigModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent)
 
-    return configs_.size();
+    return static_cast<int>(configs_.size());
 }
 
 int EndpointConfigModel::columnCount(const QModelIndex& parent) const
@@ -85,7 +85,7 @@ bool EndpointConfigModel::setData(const QModelIndex& index, const QVariant& valu
 
 int EndpointConfigModel::addConfig(const EndpointConfig& config)
 {
-    int newRow = configs_.size();
+    int newRow = static_cast<int>(configs_.size());
 
     beginInsertRows({}, newRow, newRow);
 
@@ -134,7 +134,7 @@ bool EndpointConfigModel::save()
 {
     auto s = openSettings();
 
-    s.beginWriteArray(CfgEndpoints, configs_.size());
+    s.beginWriteArray(CfgEndpoints, static_cast<int>(configs_.size()));
     for (int i = 0; i < configs_.size(); ++i)
     {
         s.setArrayIndex(i);

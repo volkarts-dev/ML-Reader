@@ -95,7 +95,7 @@ int DataModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent)
 
-    int cnt = data_.length();
+    int cnt = static_cast<int>(data_.length());
     if (firstRowHeader_ && cnt > 0)
         --cnt;
     return cnt;
@@ -105,7 +105,7 @@ int DataModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent)
 
-    return data_.length() == 0 ? 0 : data_[0].length();
+    return data_.length() == 0 ? 0 : static_cast<int>(data_[0].length());
 }
 
 QVariant DataModel::headerData(int section, Qt::Orientation orientation, int role) const

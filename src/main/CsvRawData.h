@@ -18,8 +18,8 @@ public:
     void addRow(const QStringList& values) override;
     void clear() override;
     bool isEmpty() const override;
-    int rowCount() const override;
-    QStringList rowValues(const int& row) const override;
+    qsizetype rowCount() const override;
+    QList<QString> rowValues(qsizetype row) const override;
 
 private:
     QList<QStringList> rawData_;

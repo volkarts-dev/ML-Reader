@@ -56,10 +56,10 @@ setup_git_version_config(mlreader Version.h.in)
 
 target_link_libraries(mlreader PRIVATE
     project_config
-    qt5_config
+    qt_config
     mlclient
-    qtkeychain::qt5keychain
+    qtkeychain::qt6keychain
     qtcsv::qtcsv
-    Qt5::Core
-    Qt5::Widgets
+    Qt6::Core
+    Qt6::Widgets
 )

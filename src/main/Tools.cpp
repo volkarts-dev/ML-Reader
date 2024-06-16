@@ -4,6 +4,7 @@
 #include "Tools.h"
 
 #include <QDataStream>
+#include <QIODevice>
 #include <QSplitter>
 
 Q_LOGGING_CATEGORY(MLR_LOG_CAT, "va.mlreader", QtMsgType::QtDebugMsg)
