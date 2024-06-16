@@ -20,3 +20,7 @@ extern const QString CfgLastAccessedDirectory;
 extern const QString CfgCsvColumnSeparator;
 extern const QString CfgCsvQuotingCharacter;
 extern const QString CfgCsvCodec;
+
+extern const QString CfgCsvDefaultColumnSeparator;
+extern const QString CfgCsvDefaultQuotingCharacter;
+extern const QString CfgCsvDefaultCodec;

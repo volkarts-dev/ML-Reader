@@ -56,11 +56,11 @@ bool Application::initialize()
         if (s.value(CfgLastAccessedDirectory).isNull())
             s.setValue(CfgLastAccessedDirectory, QString{});
         if (s.value(CfgCsvColumnSeparator).isNull())
-            s.setValue(CfgCsvColumnSeparator, QStringLiteral(";"));
+            s.setValue(CfgCsvColumnSeparator, CfgCsvDefaultColumnSeparator);
         if (s.value(CfgCsvQuotingCharacter).isNull())
-            s.setValue(CfgCsvQuotingCharacter, QStringLiteral("\""));
+            s.setValue(CfgCsvQuotingCharacter, CfgCsvDefaultQuotingCharacter);
         if (s.value(CfgCsvCodec).isNull())
-            s.setValue(CfgCsvCodec, QStringLiteral("ISO 8859-15"));
+            s.setValue(CfgCsvCodec, CfgCsvDefaultCodec);
     }
 
     endpointConfigModel_.reset(new EndpointConfigModel{});

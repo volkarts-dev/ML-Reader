@@ -8,6 +8,11 @@ const QString CfgCsvColumnSeparator = QStringLiteral("Main/Csv/ColumnSeparator")
 const QString CfgCsvQuotingCharacter = QStringLiteral("Main/Csv/QuotingCharacter");
 const QString CfgCsvCodec = QStringLiteral("Main/Csv/Codec");
 
+const QString CfgCsvDefaultColumnSeparator = QStringLiteral(";");
+const QString CfgCsvDefaultQuotingCharacter = QStringLiteral("\"");
+const QString CfgCsvDefaultCodec = QStringLiteral("ISO-8859-1");
+
+
 UserSettings::UserSettings()
 {
 }
