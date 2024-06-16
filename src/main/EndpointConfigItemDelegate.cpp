@@ -6,6 +6,12 @@
 #include "EndpointConfig.h"
 #include <QPlainTextEdit>
 
+namespace {
+
+const QRegularExpression FieldDelimiterExpr{QStringLiteral("[,;\\s]+")};
+
+} // namespace
+
 EndpointConfigItemDelegate::EndpointConfigItemDelegate(QObject* parent) :
     QStyledItemDelegate{parent}
 {
@@ -40,8 +46,7 @@ void EndpointConfigItemDelegate::setModelData(QWidget* editor, QAbstractItemMode
 
     const auto plainString = textEdit->toPlainText();
 
-    QRegularExpression expr{QStringLiteral("[,;\\s]+")};
-    const auto fields = plainString.split(expr, Qt::SkipEmptyParts);
+    const auto fields = plainString.split(FieldDelimiterExpr, Qt::SkipEmptyParts);
 
     model->setData(index, fields);
 }
