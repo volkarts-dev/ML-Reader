@@ -13,9 +13,6 @@
         <file>icons/breeze/actions/22/go-jump.svg</file>
         <file>icons/breeze/actions/22/list-add.svg</file>
         <file>icons/breeze/actions/22/list-remove.svg</file>
-        <file>icons/breeze/actions/32/document-open.svg</file>
-        <file>icons/breeze/actions/32/document-save.svg</file>
-        <file>icons/breeze/actions/32/go-jump.svg</file>
         <file>icons/breeze/index.theme</file>
         <file>icons/breeze/actions/16/document-edit.svg</file>
         <file>icons/breeze/actions/16/download.svg</file>
@@ -23,10 +20,8 @@
         <file>icons/breeze/actions/22/document-edit.svg</file>
         <file>icons/breeze/actions/22/download.svg</file>
         <file>icons/breeze/actions/22/system-search.svg</file>
-        <file>icons/breeze/actions/32/document-edit.svg</file>
         <file>icons/breeze/actions/16/configure.svg</file>
         <file>icons/breeze/actions/22/configure.svg</file>
-        <file>icons/breeze/actions/32/configure.svg</file>
         <file>icons/breeze/actions/16/edit-paste.svg</file>
         <file>icons/breeze/actions/22/edit-paste.svg</file>
         <file>icons/breeze/actions/16/edit-delete.svg</file>
