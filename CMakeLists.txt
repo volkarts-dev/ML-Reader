@@ -25,4 +25,5 @@ include(LoadQt)
 include(LoadQtcsv)
 include(LoadQtKeychain)
 
-add_subdirectory(src)
+add_subdirectory(src/main)
+add_subdirectory(src/mlclient)

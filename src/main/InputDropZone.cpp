@@ -1,5 +1,5 @@
 // Copyright 2024, Daniel Volk <mail@volkarts.com>
-// SPDX-License-Identifier: <LICENSE>
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "InputDropZone.h"
 
@@ -14,9 +14,7 @@ InputDropZone::InputDropZone(QWidget *parent) :
     setup();
 }
 
-InputDropZone::~InputDropZone()
-{
-}
+InputDropZone::~InputDropZone() = default;
 
 void InputDropZone::setup()
 {

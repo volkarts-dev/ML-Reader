@@ -1,5 +1,5 @@
 // Copyright 2024, Daniel Volk <mail@volkarts.com>
-// SPDX-License-Identifier: <LICENSE>
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -13,7 +13,7 @@ class InputDropZone : public QFrame
 
 public:
     explicit InputDropZone(QWidget *parent = nullptr);
-    ~InputDropZone();
+    ~InputDropZone() override;
 
     Qt::DropActions allowedDropActions() const { return allowedDropActions_; }
     void setAllowedDropActions(Qt::DropActions dropActions) { allowedDropActions_ = dropActions; }
@@ -35,4 +35,6 @@ private:
 private:
     Qt::DropActions allowedDropActions_;
     QVector<QString> allowedMimeTypes_;
+
+    Q_DISABLE_COPY_MOVE(InputDropZone)
 };

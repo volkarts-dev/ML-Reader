@@ -1,5 +1,5 @@
 // Copyright 2024, Daniel Volk <mail@volkarts.com>
-// SPDX-License-Identifier: <LICENSE>
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "EndpointConfigItemDelegate.h"
 
