@@ -125,7 +125,7 @@ void MainWindow::logMessage(QtMsgType type, const QString& message)
             string += QStringLiteral("<span style='color: gray'>[DEBUG] ");
             break;
         case QtInfoMsg:
-            string += QStringLiteral("<span style=''>[INFO ");
+            string += QStringLiteral("<span style=''>[INFO] ");
             break;
         case QtWarningMsg:
             string += QStringLiteral("<span style='color: yellow'>[WARN] ");
@@ -138,7 +138,7 @@ void MainWindow::logMessage(QtMsgType type, const QString& message)
             break;
     }
 
-    string += message + QStringLiteral("</span>");
+    string += message.toHtmlEscaped() + QStringLiteral("</span>");
 
     auto* scrollBar = ui->logOutput->verticalScrollBar();
     bool scrollbarAtBottom  = (scrollBar->value() >= (scrollBar->maximum() - 10));
