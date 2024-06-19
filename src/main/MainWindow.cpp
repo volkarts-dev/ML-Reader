@@ -122,19 +122,19 @@ void MainWindow::logMessage(QtMsgType type, const QString& message)
     switch (type)
     {
         case QtDebugMsg:
-            string += QStringLiteral("<span style='color: gray'>[DEBUG]&nbsp;");
+            string += QStringLiteral("<span style='color: gray'>[DEBUG] ");
             break;
         case QtInfoMsg:
-            string += QStringLiteral("<span style=''>[INFO]&nbsp;&nbsp;");
+            string += QStringLiteral("<span style=''>[INFO ");
             break;
         case QtWarningMsg:
-            string += QStringLiteral("<span style='color: yellow'>[WARN]&nbsp;&nbsp;");
+            string += QStringLiteral("<span style='color: yellow'>[WARN] ");
             break;
         case QtCriticalMsg:
-            string += QStringLiteral("<span style='color: red'>[ERROR]&nbsp;");
+            string += QStringLiteral("<span style='color: red'>[ERROR] ");
             break;
         case QtFatalMsg:
-            string += QStringLiteral("<span style='color: purple'>[FATAL]&nbsp;");
+            string += QStringLiteral("<span style='color: purple'>[FATAL] ");
             break;
     }
 

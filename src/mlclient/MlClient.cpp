@@ -21,6 +21,7 @@ class MlConversation : public QObject
 public:
     MlConversation(MlClient* mlClient, QObject* parent = {}) :
         QObject{parent},
+        id_{idSource_++},
         mlClient_{mlClient}
     {
     }
@@ -37,14 +38,16 @@ signals:
 protected:
     void logInfo(const QString& msg)
     {
-        qCDebug(MLC_LOG_CAT).nospace().noquote() << msg;
+        const auto message = "<%1> %2"_l1.arg(QString::number(id_), msg);
 
-        emit logMessage(QtInfoMsg, msg);
+        qCDebug(MLC_LOG_CAT).nospace().noquote() << message;
+
+        emit logMessage(QtInfoMsg, message);
     }
 
     void logError(const QString& prefix, QNetworkReply::NetworkError error, int statusCode, const QString& msg)
     {
-        QString message = prefix;
+        QString message = "<%1> %2"_l1.arg(QString::number(id_), prefix);
         message += QStringLiteral(": %1 (%2) ").arg(QString::number(statusCode), QString::number(error));
         message += msg;
 
@@ -74,8 +77,9 @@ private:
 
                 logError("Failed to create session"_l1, error, statusCode, messageFromServer);
 
-                const MlClient::Error err{statusCode != 404 ?
-                                messageFromServer : tr("Mainzelliste not found on server. Check the BaseURL.")};
+                const MlClient::Error err(statusCode != 404 ?
+                            messageFromServer : tr("Mainzelliste not found on server. Check the BaseURL."));
+
                 emit finished(err, {});
             }
             else
@@ -84,7 +88,7 @@ private:
 
                 sessionId_ = responseObject["sessionId"_l1].toString();
 
-                logInfo("Session created: %1"_l1.arg(sessionId_));
+                logInfo("Session created"_l1);
 
                 createToken();
             }
@@ -120,7 +124,7 @@ private:
 
                 tokenId_ = responseObject["id"_l1].toString();
 
-                logInfo("Token created %1"_l1.arg(tokenId_));
+                logInfo("Token created %1"_l1);
 
                 doActualRequest();
             }
@@ -132,14 +136,14 @@ private:
 protected:
     void deleteSession()
     {
-        logInfo("Delete session %1"_l1.arg(sessionId_));
+        logInfo("Delete session"_l1);
 
         QString path = "/sessions/"_l1 + sessionId_;
 
         auto response = startRequest(HttpRequest::Method::DELETE, path, {});
 
         connect(response, &HttpResponse::finished, this,
-                [this, response](QNetworkReply::NetworkError error, int statusCode)
+            [this, response](QNetworkReply::NetworkError error, int statusCode)
         {
             if (error || statusCode != 204)
             {
@@ -149,7 +153,7 @@ protected:
             }
             else
             {
-                logInfo("Session deleted"_l1.arg(sessionId_));
+                logInfo("Session deleted"_l1);
             }
 
             response->deleteLater();
@@ -183,10 +187,14 @@ protected:
     virtual void doActualRequest() = 0;
 
 private:
+    static QAtomicInteger<quint64> idSource_;
+    quint64 id_;
     MlClient* mlClient_;
     QString sessionId_{};
     QString tokenId_{};
 };
+
+QAtomicInteger<quint64> MlConversation::idSource_{1};
 
 // *********************************************************************************************************************
 
@@ -211,7 +219,7 @@ public:
 
     void doActualRequest() override
     {
-        logInfo("Load patient data for %1"_l1.arg(tokenId()));
+        logInfo("Load patient data"_l1);
 
         QString path = "/patients"_l1;
         QUrlQuery query{{QStringLiteral("tokenId"), tokenId()}};
@@ -235,7 +243,7 @@ public:
 
                 auto patientData = parseResponse(responseObject);
 
-                logInfo("Patient data loaded for %1"_l1.arg(tokenId()));
+                logInfo("Patient data loaded"_l1);
 
                 emit finished({}, QVariant::fromValue(patientData));
 
@@ -312,7 +320,7 @@ public:
 
     void doActualRequest() override
     {
-        logInfo("Query patient for %1"_l1.arg(tokenId()));
+        logInfo("Query patient"_l1);
 
         QString path = "/patients"_l1;
         QUrlQuery query{{QStringLiteral("tokenId"), tokenId()}};
@@ -345,7 +353,7 @@ public:
                     parseConflictResponse(queryResult, returnValue.object());
                 }
 
-                logInfo("Patient queried for %1"_l1.arg(tokenId()));
+                logInfo("Patient queried"_l1);
 
                 emit finished({}, QVariant::fromValue(queryResult));
 
@@ -419,7 +427,7 @@ public:
 
     void doActualRequest() override
     {
-        logInfo("Edit patient for %1"_l1.arg(tokenId()));
+        logInfo("Edit patient"_l1);
 
         QString path = "/patients/tokenId/"_l1 + tokenId();
         auto body = HttpBody::jsonObjectFromHash(patientData_);
@@ -439,7 +447,7 @@ public:
             }
             else
             {
-                logInfo("Patient edited for %1"_l1.arg(tokenId()));
+                logInfo("Patient edited"_l1);
 
                 emit finished({}, {});
 
