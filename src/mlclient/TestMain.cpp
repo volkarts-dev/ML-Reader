@@ -5,10 +5,15 @@
 #include "Tools.h"
 #include <QCoreApplication>
 #include <QDebug>
+#include <QSslSocket>
 
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
+
+    qCInfo(MLC_LOG_CAT) <<
+        "TLS library built against:" << QSslSocket::sslLibraryBuildVersionString() << "\n" <<
+        "TLS library version available:" << QSslSocket::sslLibraryVersionString();
 
     MlClient client{
         QStringLiteral("http://localhost:8080/mainzelliste.muko"),
