@@ -62,3 +62,7 @@ target_link_libraries(mlreader PRIVATE
     Qt6::Core
     Qt6::Widgets
 )
+
+set_target_properties(mlreader PROPERTIES
+    WIN32_EXECUTABLE ON
+)
