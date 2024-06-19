@@ -16,8 +16,6 @@ add_library(mlclient STATIC
     Tools.h
 )
 
-configure_mocs(mlclient)
-
 target_link_libraries(mlclient PRIVATE
     project_config
     qt_config
