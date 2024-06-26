@@ -124,7 +124,7 @@ private:
 
                 tokenId_ = responseObject["id"_l1].toString();
 
-                logInfo("Token created %1"_l1);
+                logInfo("Token created"_l1);
 
                 doActualRequest();
             }
