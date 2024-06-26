@@ -45,6 +45,8 @@ void QueryPage::initialize(MainWindow* mainWindow)
     ui->queryResultPane->setVisible(false);
     ui->possibleMatchesPane->setVisible(false);
 
+    ui->splitter->setCollapsible(0, false);
+
     ui->possibleMatches->setModel(possibleMatchesModel_);
     ui->possibleMatches->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -113,6 +115,13 @@ void QueryPage::reloadDynamicForm(int endpointIndex)
     }
 
     ui->patientDataForm->reset(dynamicFields);
+}
+
+void QueryPage::fixSplitterSizes()
+{
+    auto sizes = ui->splitter->sizes();
+    sizes[1] = qMax(300, sizes[1]);
+    ui->splitter->setSizes(sizes);
 }
 
 void QueryPage::changeEvent(QEvent* event)
@@ -225,6 +234,8 @@ void QueryPage::onPatientDataQueringDone(const MlClient::Error& error, const MlC
                                     mainWindow_->endpointSelector()->currentFieldList(),
                                      this, &QueryPage::onPatientDataLoadingDone);
         }
+
+        fixSplitterSizes();
 
         mainWindow_->showStatusMessage(tr("Patient data queried"), 1000);
     }

@@ -44,6 +44,7 @@ private:
     void updateUiState();
     void execute(bool sureness);
     void reloadDynamicForm(int endpointIndex);
+    void fixSplitterSizes();
 
 private:
     Ui::QueryPage* ui;
